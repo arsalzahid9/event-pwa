@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, Lock, HelpCircle, LogOut } from 'lucide-react';
+// Update imports
+import { ArrowLeft, ChevronRight, Lock, HelpCircle, LogOut, User } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { Link } from 'react-router-dom';
 
 export default function Settings() {
   const [user] = useState({
@@ -27,46 +29,41 @@ export default function Settings() {
         <h1 className="text-xl font-semibold">Account Settings</h1>
       </div>
 
-      <div className="p-8 flex flex-col items-center">
-        <div className="relative">
-          <img
-            src={user.avatar}
-            alt={user.full_name}
-            className="w-24 h-24 rounded-full object-cover"
-          />
-          <button className="mt-4 text-blue-600 font-medium">
-            Change Photo
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white p-4 space-y-4">
-        <div className="space-y-1">
-          <label className="text-sm text-gray-600">Full Name</label>
-          <p className="text-lg font-medium">{user.full_name}</p>
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm text-gray-600">Email Address</label>
-          <p className="text-lg font-medium">{user.email}</p>
-        </div>
-      </div>
+      
 
       <div className="mt-6 bg-white">
-        <button className="w-full p-4 flex items-center justify-between text-left border-b">
+        <Link 
+          to="/personal-settings"
+          className="w-full p-4 flex items-center justify-between text-left border-b hover:bg-gray-50"
+        >
+          <div className="flex items-center gap-3">
+            <User className="text-gray-600" size={20} />
+            <span className="font-medium">Personal Settings</span>
+          </div>
+          <ChevronRight className="text-gray-400" size={20} />
+        </Link>
+
+        <Link 
+          to="/privacy-security" 
+          className="w-full p-4 flex items-center justify-between text-left border-b hover:bg-gray-50"
+        >
           <div className="flex items-center gap-3">
             <Lock className="text-gray-600" size={20} />
             <span className="font-medium">Privacy & Security</span>
           </div>
           <ChevronRight className="text-gray-400" size={20} />
-        </button>
+        </Link>
         
-        <button className="w-full p-4 flex items-center justify-between text-left border-b">
+        <Link 
+          to="/help-support" 
+          className="w-full p-4 flex items-center justify-between text-left border-b hover:bg-gray-50"
+        >
           <div className="flex items-center gap-3">
             <HelpCircle className="text-gray-600" size={20} />
             <span className="font-medium">Help & Support</span>
           </div>
           <ChevronRight className="text-gray-400" size={20} />
-        </button>
+        </Link>
 
         <button 
           onClick={handleLogout}

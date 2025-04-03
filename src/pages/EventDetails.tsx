@@ -82,10 +82,10 @@ export default function EventDetails() {
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Name</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Phone</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Date</th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Tickets</th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Amount</th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Payment</th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Status</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap"> Tickets</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Amount to Pay</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Payment Completed</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Check-in Status</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Check-in</th>
               </tr>
             </thead>
@@ -94,7 +94,7 @@ export default function EventDetails() {
                 <tr key={participant.id} className="border-b">
                   <td className="py-3 px-4 whitespace-nowrap">{participant.name}</td>
                   <td className="py-3 px-4">
-                    <div className="text-xs text-gray-500">Phone</div>
+                    {/* <div className="text-xs text-gray-500">Phone</div> */}
                     <div className="whitespace-nowrap">{participant.phone}</div>
                   </td>
                   <td className="py-3 px-4 whitespace-nowrap">{event.date}</td>

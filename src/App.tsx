@@ -8,24 +8,31 @@ import ResetPassword from './pages/ResetPassword';
 import OtpVerification from './pages/OtpVerification';
 import BottomNav from './components/BottomNav';
 import { useAuthStore } from './store/authStore';
+import PrivacySecurity from './pages/PrivacySecurity';
+import HelpSupport from './pages/HelpSupport';
+// Add import
+import PersonalSettings from './pages/PersonalSettings';
 
 function App() {
   const user = useAuthStore((state) => state.user);
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50 pb-16">
+      <div className="min-h-screen bg-grsay-50 pb-16">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/otp-verification" element={<OtpVerification />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          
+
           {/* Static Routes */}
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventDetails />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/privacy-security" element={<PrivacySecurity />} />
+          <Route path="/help-support" element={<HelpSupport />} />
           <Route path="/" element={<Navigate to="/events" />} />
+          <Route path="/personal-settings" element={<PersonalSettings />} />
         </Routes>
         <BottomNav />
       </div>
