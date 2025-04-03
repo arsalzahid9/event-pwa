@@ -22,6 +22,43 @@ export default function Events() {
       image_url: 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
       participants_count: 12,
       description: 'Discover the rich history of Bologna'
+    },
+    // New events added below
+    {
+      id: '3',
+      title: 'Rome Highlights',
+      date: '15/04/2025',
+      location: 'Eternal City Tours',
+      image_url: 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
+      participants_count: 20,
+      description: 'Experience the ancient wonders of Rome'
+    },
+    {
+      id: '4',
+      title: 'Venice Canals',
+      date: '22/05/2025',
+      location: 'Venetian Adventures',
+      image_url: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0',
+      participants_count: 18,
+      description: 'Gondola rides through historic waterways'
+    },
+    {
+      id: '5',
+      title: 'Milan Fashion Tour',
+      date: '10/06/2025',
+      location: 'Lombardy Cultural',
+      image_url: 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
+      participants_count: 14,
+      description: 'Discover Milan\'s fashion district'
+    },
+    {
+      id: '6',
+      title: 'Naples Coast',
+      date: '01/07/2025',
+      location: 'Southern Italy Tours',
+      image_url: 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
+      participants_count: 16,
+      description: 'Explore the Amalfi Coast and Pompeii'
     }
   ]);
 
