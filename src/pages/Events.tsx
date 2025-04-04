@@ -3,6 +3,7 @@ import EventCard from '../components/EventCard';
 import { Event } from '../types';
 import { Users } from 'lucide-react';
 import { getEvents } from '../api/Guide/events';
+import Loader from '../components/Loader';
 
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -35,7 +36,7 @@ export default function Events() {
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen bg-gray-50 p-4">Loading...</div>;
+    return <Loader />;
   }
 
   if (error) {

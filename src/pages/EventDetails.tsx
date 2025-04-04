@@ -5,6 +5,9 @@ import { Event, Participant } from '../types';
 import { getEventDetails } from '../api/Guide/eventDetail';
 import { checkInParticipant } from '../api/Guide/eventCheckin';
 
+// Add import at the top
+import Loader from '../components/Loader';
+
 export default function EventDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -74,7 +77,7 @@ export default function EventDetails() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-gray-50 p-4">Loading...</div>;
+    return <Loader />;
   }
 
   if (error) {
