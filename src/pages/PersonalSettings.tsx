@@ -20,11 +20,11 @@ export default function PersonalSettings() {
         </button>
         <div className="flex items-center">
           <User className="text-blue-900 mr-2" size={28} />
-          <h1 className="text-xl font-semibold text-blue-900">Personal Settings</h1>
+          <h1 className="text-xl font-semibold text-blue-900">Personal Details</h1>
         </div>
       </div>
 
-      <div className="p-8 flex flex-col items-center">
+      {/* <div className="p-8 flex flex-col items-center">
         <div className="relative">
           <img
             src={user.avatar}
@@ -35,9 +35,9 @@ export default function PersonalSettings() {
             Change Photo
           </button>
         </div>
-      </div>
+      </div> */}
 
-      <div className="bg-white p-4 space-y-4 mx-4 rounded-lg shadow-sm">
+      <div className="bg-white p-4  mt-6 space-y-4 mx-4 rounded-lg shadow-sm">
         <div className="space-y-1">
           <label className="text-sm text-gray-600">Full Name</label>
           <p className="text-lg font-medium">{user.full_name}</p>

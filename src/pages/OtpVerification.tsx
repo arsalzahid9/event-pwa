@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { verifyOtp } from '../api/Guide/verifyOtp'; // import API
 
 export default function OtpVerification() {
   const [otp, setOtp] = useState('');
@@ -7,19 +8,51 @@ export default function OtpVerification() {
   const [timeLeft, setTimeLeft] = useState(60);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+    }
+
+    return () => clearTimeout(timer);
+  }, [timeLeft]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add OTP verification logic here
-    navigate('/reset-password');
+    try {
+      await verifyOtp(otp);
+      navigate('/reset-password');
+    } catch (error) {
+      alert((error as Error).message);
+    }
   };
 
   const resendOtp = async () => {
     setIsResending(true);
-    // Add resend logic here
-    setTimeout(() => {
+    try {
+      // You can reuse sendOtp here if needed
+      const email = localStorage.getItem('reset_email');
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/send-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to resend OTP');
+      }
+
+      alert('OTP resent successfully');
       setTimeLeft(60);
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
       setIsResending(false);
-    }, 60000);
+    }
   };
 
   return (
@@ -29,7 +62,7 @@ export default function OtpVerification() {
           <h1 className="text-2xl font-bold">Verify OTP</h1>
           <p className="mt-2 text-gray-600">Enter the 6-digit code sent to your email</p>
         </div>
-        
+
         <div className="space-y-4">
           <input
             type="text"
@@ -38,15 +71,16 @@ export default function OtpVerification() {
             className="w-full p-3 border rounded-lg"
             placeholder="Enter OTP"
             maxLength={6}
+            required
           />
-          
+
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
           >
             Verify
           </button>
-          
+
           <div className="text-center text-sm text-gray-600">
             {timeLeft > 0 ? (
               `Resend code in ${timeLeft} seconds`
@@ -57,7 +91,7 @@ export default function OtpVerification() {
                 disabled={isResending}
                 className="text-blue-600 hover:underline disabled:opacity-50"
               >
-                Resend OTP
+                {isResending ? 'Sending...' : 'Resend OTP'}
               </button>
             )}
           </div>

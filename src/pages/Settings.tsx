@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 // Update imports
 import { ArrowLeft, ChevronRight, Lock, HelpCircle, LogOut, User } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { logoutUser } from '../api/Guide/logout'; // Add this import
 import { Link } from 'react-router-dom';
 
 export default function Settings() {
@@ -15,9 +16,16 @@ export default function Settings() {
   const navigate = useNavigate();
   const setUser = useAuthStore(state => state.setUser);
 
-  const handleLogout = () => {
-    setUser(null);
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('authToken'); // Clear token
+      setUser(null);
+      navigate('/login');
+    }
   };
 
   return (
@@ -38,7 +46,7 @@ export default function Settings() {
         >
           <div className="flex items-center gap-3">
             <User className="text-gray-600" size={20} />
-            <span className="font-medium">Personal Settings</span>
+            <span className="font-medium">Personal Details</span>
           </div>
           <ChevronRight className="text-gray-400" size={20} />
         </Link>

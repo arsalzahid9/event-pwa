@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser } from '../api/login';
+import { loginUser } from '../api/Guide/login';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +20,7 @@ export default function Login() {
       const { data } = await loginUser(email, password);
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard');
+      navigate('/events');
     } catch (err) {
       setError(err.message || 'Failed to login. Please try again.');
     } finally {

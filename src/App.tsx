@@ -10,7 +10,6 @@ import BottomNav from './components/BottomNav';
 import { useAuthStore } from './store/authStore';
 import PrivacySecurity from './pages/PrivacySecurity';
 import HelpSupport from './pages/HelpSupport';
-// Add import
 import PersonalSettings from './pages/PersonalSettings';
 
 // Add service worker registration

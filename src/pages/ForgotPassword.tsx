@@ -1,15 +1,27 @@
 import { useState } from 'react';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { sendOtp } from '../api/Guide/forgotPassword'; // ⬅️ Import the API function
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement forgot password logic
-    navigate('/otp-verification');
+    setLoading(true);
+
+    try {
+      await sendOtp(email); // ⬅️ API call to send OTP
+      localStorage.setItem('reset_email', email); // ⬅️ Store email in localStorage
+      navigate('/otp-verification'); // ⬅️ Navigate on success
+    } catch (error: any) {
+      console.error('OTP send failed:', error);
+      alert(error?.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,9 +58,12 @@ export default function ForgotPassword() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-blue-700 text-white rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            disabled={loading}
+            className={`w-full py-3 px-4 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+              loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800'
+            }`}
           >
-            Send Code
+            {loading ? 'Sending...' : 'Send Code'}
           </button>
         </form>
 

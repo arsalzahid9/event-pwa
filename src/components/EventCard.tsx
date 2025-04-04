@@ -8,6 +8,7 @@ interface EventCardProps {
 
 export default function EventCard({ event }: EventCardProps) {
   return (
+    // In the return statement of EventCard, wrap content with Link:
     <Link to={`/events/${event.id}`}>
       <div className="bg-white rounded-lg overflow-hidden shadow-md mb-4">
         <img 
