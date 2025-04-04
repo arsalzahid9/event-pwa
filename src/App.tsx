@@ -59,7 +59,7 @@ function AppRoutes() {
         <Route path="/privacy-security" element={<PrivacySecurity />} />
         <Route path="/help-support" element={<HelpSupport />} />
         <Route path="/personal-settings" element={<PersonalSettings />} />
-        <Route path="/" element={<Navigate to="/events" />} />
+        <Route path="/" element={<Navigate to="/login" />} />
 
         {/* Admin-only routes */}
         {isAdmin && (
