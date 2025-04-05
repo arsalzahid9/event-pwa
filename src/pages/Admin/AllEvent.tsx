@@ -3,6 +3,7 @@ import EventCard from '../../components/EventCard';
 import { Event } from '../../types';
 import { getEvents } from '../../api/Admin/getAllEvents';
 import Loader from '../../components/Loader';
+import { Users } from 'lucide-react';  // Add this import
 
 export default function AllEvent() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -47,10 +48,41 @@ export default function AllEvent() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">All Events</h1>
       </div>
-      <div className="space-y-4">
-        {events.map(event => (
-          <EventCard key={event.id} event={event} />
-        ))}
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event Name</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Location</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Date</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Description</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Image</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {events.map(event => (
+                <tr key={event.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 text-sm font-medium">{event.title}</td>
+                  <td className="px-6 py-4 text-sm">{event.location}</td>
+                  <td className="px-6 py-4 text-sm">{event.date}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{event.description}</td>
+                  <td className="px-6 py-4 text-sm">
+                    {event.image_url ? (
+                      <img 
+                        src={event.image_url} 
+                        alt={event.title}
+                        className="h-12 w-12 object-cover rounded"
+                      />
+                    ) : (
+                      <span className="text-gray-400">No image</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
