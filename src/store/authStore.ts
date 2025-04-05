@@ -14,7 +14,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setUser: (user) => {
     if (user) {
-      const isAdmin = Boolean(user.is_admin);
+      const isAdmin = user.is_admin === '1'; // Explicitly check if "1"
       localStorage.setItem('is_admin', isAdmin ? '1' : '0');
     } else {
       localStorage.removeItem('is_admin');
@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     set({
       user,
-      isAdmin: user ? Boolean(user.is_admin) : false,
+      isAdmin: user ? user.is_admin === '1' : false,
     });
   },
 

@@ -1,21 +1,84 @@
 
 
-  import { CalendarDays, Users, Ticket, Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, BookOpen, Euro, Percent } from 'lucide-react';
+import { getDashboardData } from '../../api/Admin/dashboard';
+import Loader from '../../components/Loader';
 
 export const Dashboard = () => {
-  // Mock data - replace with real data from your API
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [statsData, setStatsData] = useState(null);
+  const [eventData, setEventData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getDashboardData();
+        setStatsData(response.data);
+        setEventData(response.data.event_data);
+      } catch (err) {
+        setError(err.message || 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
+
   const stats = [
-    { title: 'Total Events', value: '24', icon: <CalendarDays className="w-6 h-6" />, color: 'bg-blue-100' },
-    { title: 'Total Guides', value: '15', icon: <Users className="w-6 h-6" />, color: 'bg-green-100' },
-    { title: 'Total Bookings', value: '189', icon: <Ticket className="w-6 h-6" />, color: 'bg-purple-100' },
-    { title: 'Active Events', value: '4', icon: <Activity className="w-6 h-6" />, color: 'bg-yellow-100' }
+    { 
+      title: 'Total Users', 
+      value: statsData?.total_user || 0,
+      icon: <Users className="w-6 h-6" />, 
+      color: 'bg-blue-100',
+      format: (val: number) => val.toLocaleString()
+    },
+    { 
+      title: 'User Growth', 
+      value: statsData?.total_user_percentage || '0%',
+      icon: <Percent className="w-6 h-6" />, 
+      color: 'bg-blue-100',
+      format: (val: string) => val
+    },
+    { 
+      title: 'Total Revenue', 
+      value: statsData?.total_order_amount || 0,
+      icon: <Euro className="w-6 h-6" />, 
+      color: 'bg-green-100',
+      format: (val: number) => `€${val.toFixed(2)}`
+    },
+    { 
+      title: 'Revenue Share', 
+      value: statsData?.total_order_amount_percentage || '0%',
+      icon: <Percent className="w-6 h-6" />, 
+      color: 'bg-green-100',
+      format: (val: string) => val
+    },
+    { 
+      title: 'Total Bookings', 
+      value: statsData?.total_booking || 0,
+      icon: <BookOpen className="w-6 h-6" />, 
+      color: 'bg-purple-100',
+      format: (val: number) => val.toLocaleString()
+    },
+    { 
+      title: 'Booking Rate', 
+      value: statsData?.total_booking_percentage || '0%',
+      icon: <Percent className="w-6 h-6" />, 
+      color: 'bg-purple-100',
+      format: (val: string) => val
+    }
   ];
 
-  const recentBookings = [
-    { id: 1, event: 'Tech Conference', guide: 'Sarah Smith', date: '2024-03-15', participants: 120 },
-    { id: 2, event: 'Music Festival', guide: 'John Doe', date: '2024-03-14', participants: 450 },
-    { id: 3, event: 'Business Summit', guide: 'Emma Wilson', date: '2024-03-13', participants: 89 },
-  ];
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-600">{error}</div>;
+  }
 
   return (
     <div className="p-6 space-y-8">
@@ -28,7 +91,9 @@ export const Dashboard = () => {
                 {stat.icon}
               </div>
               <div className="text-right">
-                <p className="text-2xl font-semibold">{stat.value}</p>
+                <p className="text-2xl font-semibold">
+                  {stat.format(stat.value)}
+                </p>
                 <p className="text-gray-500">{stat.title}</p>
               </div>
             </div>
@@ -43,28 +108,40 @@ export const Dashboard = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event Name</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Participant</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Guide</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Amount</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Date</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Participants</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {recentBookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td className="px-6 py-4 text-sm">{booking.event}</td>
-                  <td className="px-6 py-4 text-sm">{booking.guide}</td>
-                  <td className="px-6 py-4 text-sm">{booking.date}</td>
-                  <td className="px-6 py-4 text-sm">{booking.participants}</td>
+              {eventData.map((event) => (
+                <tr key={event.id}>
+                  <td className="px-6 py-4 text-sm">
+                    <div className="font-medium">{event.participant_name}</div>
+                    <div className="text-gray-500">{event.participant_email}</div>
+                  </td>
+                  <td className="px-6 py-4 text-sm">{event.event_name}</td>
+                  <td className="px-6 py-4 text-sm">{event.guide_name}</td>
+                  <td className="px-6 py-4 text-sm">
+                    <div className="font-medium">
+                      €{parseFloat(event.amount.replace(/\.(?=.*\.)/g, '')).toFixed(2)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    {new Date(event.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
+                      {event.payment_status || 'Pending'}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {recentBookings.length === 0 && (
-            <div className="text-center py-6 text-gray-500">
-              No recent bookings found
-            </div>
-          )}
         </div>
       </div>
     </div>

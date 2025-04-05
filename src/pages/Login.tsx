@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/Guide/login';
+import { useAuthStore } from '../store/authStore';
 
 export default function Login() {
+  // Inside your Login component
+  const { setUser } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,13 +18,16 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       const { data } = await loginUser(email, password);
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/events');
-    } catch (err) {
+      // Set user and isAdmin in the auth store.
+      setUser(data.user);
+      // Optionally, navigate to a different route based on admin status:
+      navigate(data.user.is_admin === '1' ? '/dashboard' : '/events');
+    } catch (err: any) {
       if (err.response?.status === 401) {
         setError('Invalid email or password');
       } else {
@@ -31,7 +37,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">

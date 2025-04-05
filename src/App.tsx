@@ -1,10 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 
 import Login from './pages/Login';
@@ -15,32 +9,35 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import OtpVerification from './pages/OtpVerification';
 import BottomNav from './components/BottomNav';
+import AdminBottomNav from './components/AdminBottomNav';
 import PrivacySecurity from './pages/PrivacySecurity';
 import HelpSupport from './pages/HelpSupport';
 import PersonalSettings from './pages/PersonalSettings';
 import { Dashboard } from './pages/Admin/Dashboard';
-import { AllEvent } from './pages/Admin/AllEvent';
+// Change from:
+// import { AllEvent } from './pages/Admin/AllEvent';
+// To:
+import AllEvent from './pages/Admin/AllEvent';
 import { Guides } from './pages/Admin/Guides';
 
-// Add service worker registration
+// Register the service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js');
   });
 }
 
-// Inner App component with access to hooks
 function AppRoutes() {
   const location = useLocation();
   const isAdmin = useAuthStore((state) => state.isAdmin);
 
+  // Define paths where bottom navigation should be hidden
   const authPaths = [
     '/login',
     '/forgot-password',
     '/otp-verification',
     '/reset-password',
   ];
-
   const shouldHideBottomNav = authPaths.includes(location.pathname);
 
   return (
@@ -61,18 +58,21 @@ function AppRoutes() {
         <Route path="/personal-settings" element={<PersonalSettings />} />
         <Route path="/" element={<Navigate to="/login" />} />
 
-        {/* Admin-only routes */}
+        {/* Admin-only Routes */}
         {isAdmin && (
           <>
-            <Route path="/admin-dashboard" element={<Dashboard/>} />
-            <Route path="/all-events" element={<AllEvent/>} />
-            <Route path="/guides" element={<Guides/>} />
-            {/* Add other admin routes here */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/all-events" element={<AllEvent />} />
+            <Route path="/guides" element={<Guides />} />
+            {/* Add additional admin routes here */}
           </>
         )}
       </Routes>
 
-      {!shouldHideBottomNav && <BottomNav />}
+      {/* Render Bottom Navigation if not on an auth page */}
+      {!shouldHideBottomNav && (
+        isAdmin ? <AdminBottomNav /> : <BottomNav />
+      )}
     </div>
   );
 }

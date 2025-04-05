@@ -14,7 +14,7 @@ export default function AdminBottomNav() {
         <span className="text-xs mt-1">Dashboard</span>
       </Link>
       <Link 
-        to="/events" 
+        to="/all-events" 
         className={`flex flex-col items-center ${location.pathname.startsWith('/all-events') ? 'text-blue-700' : 'text-gray-600'}`}
       >
         <CalendarDays size={24} />
