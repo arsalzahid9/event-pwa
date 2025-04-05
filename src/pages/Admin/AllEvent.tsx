@@ -5,7 +5,11 @@ import { getEvents } from '../../api/Admin/getAllEvents';
 import Loader from '../../components/Loader';
 import { Users } from 'lucide-react';  // Add this import
 
+// Add import at the top
+import { useNavigate } from 'react-router-dom';
+
 export default function AllEvent() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -20,7 +24,7 @@ export default function AllEvent() {
           title: apiEvent.name,
           date: apiEvent.event_date 
             ? new Date(apiEvent.event_date).toLocaleDateString() 
-            : 'Date not available',
+            : 'N/A',
           location: apiEvent.origin,
           image_url: apiEvent.image || 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
           description: 'Explore this amazing event'
@@ -54,7 +58,7 @@ export default function AllEvent() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event Name</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Location</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Origin</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Date</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Description</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Image</th>
@@ -62,7 +66,11 @@ export default function AllEvent() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {events.map(event => (
-                <tr key={event.id} className="hover:bg-gray-50">
+                <tr 
+                  key={event.id} 
+                  className="hover:bg-gray-50 cursor-pointer"
+                  onClick={() => navigate(`/all-events/${event.id}`)}
+                >
                   <td className="px-6 py-4 text-sm font-medium">{event.title}</td>
                   <td className="px-6 py-4 text-sm">{event.location}</td>
                   <td className="px-6 py-4 text-sm">{event.date}</td>

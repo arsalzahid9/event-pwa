@@ -19,6 +19,7 @@ import { Dashboard } from './pages/Admin/Dashboard';
 // To:
 import AllEvent from './pages/Admin/AllEvent';
 import { Guides } from './pages/Admin/Guides';
+import AllEventDetail from './pages/Admin/AllEventDetail';
 
 // Register the service worker
 if ('serviceWorker' in navigator) {
@@ -63,6 +64,7 @@ function AppRoutes() {
           <>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/all-events" element={<AllEvent />} />
+            <Route path="/all-events/:id" element={<AllEventDetail />} />
             <Route path="/guides" element={<Guides />} />
             {/* Add additional admin routes here */}
           </>
