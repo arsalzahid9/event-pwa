@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, MapPin } from 'lucide-react';
+// Update the icon imports
+import { ArrowLeft, Calendar, MapPin, Users, Edit } from 'lucide-react';
 import { Event, Participant } from '../../types';
 import { getAdminEventDetails } from '../../api/Admin/getAllEventDetail';
 import Loader from '../../components/Loader';
+import { Dialog } from '@headlessui/react';
+import { getEditDetail } from '../../api/Admin/getEditDetail';
+import { updateEditDetail } from '../../api/Admin/updateEditDetail';
 
 export default function AllEventDetail() {
   const navigate = useNavigate();
@@ -12,6 +16,8 @@ export default function AllEventDetail() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -71,6 +77,17 @@ export default function AllEventDetail() {
     );
   }
 
+  // Modal handler functions
+  const openEditModal = (participant: Participant) => {
+    setSelectedParticipant(participant);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedParticipant(null);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="bg-white rounded-xl shadow-sm p-6">
@@ -95,50 +112,191 @@ export default function AllEventDetail() {
             </div>
           </div>
 
-          <div>
-            <div className="bg-gray-100 rounded-lg p-4">
-              <h2 className="text-xl font-semibold mb-4">
+          {/* Updated table container with overflow-x-auto and consistent styling */}
+          <div className="bg-white rounded-lg shadow-sm overflow-x-auto p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold flex items-center">
+                <Users className="w-5 h-5 mr-2 text-blue-600" />
                 Participants ({event?.participants_count})
               </h2>
-              <div className="space-y-3">
-                {participants.map((participant) => (
-                  <div key={participant.id} className="bg-white p-3 rounded-lg shadow-xs">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">{participant.name}</p>
-                        <p className="text-sm text-gray-500">{participant.email}</p>
-                      </div>
-                      <span
-                        className={`px-2 py-1 text-sm rounded-full ${
-                          participant.checked_in
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {participant.checked_in ? 'Checked In' : 'Pending'}
-                      </span>
-                    </div>
-                    <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-gray-500">Phone:</span>
-                        <span className="ml-2">{participant.phone}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Amount:</span>
-                        <span className="ml-2">€{participant.amount}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Payment:</span>
-                        <span className="ml-2">{participant.payment_status}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b bg-gray-50">
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                    Name
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                    Email
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                    Phone
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                    Amount
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                    Status
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {participants.map((participant) => (
+                  <tr key={participant.id} className="border-b hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-4 whitespace-nowrap">{participant.name}</td>
+                    <td className="py-3 px-4 whitespace-nowrap text-gray-500">
+                      {participant.email}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">{participant.phone}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">€{participant.amount}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {participant.checked_in ? (
+                        <span className="text-green-600">Checked In</span>
+                      ) : (
+                        <span className="text-red-600">Pending</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <button
+                        onClick={() => openEditModal(participant)}
+                        className="flex items-center text-blue-600 hover:text-blue-900 transition-colors"
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <Dialog
+        open={isEditModalOpen}
+        onClose={closeEditModal}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-md rounded bg-white p-6">
+            <Dialog.Title className="text-lg font-medium mb-4">
+              Edit Participant Details
+            </Dialog.Title>
+            {selectedParticipant && (
+              <EditParticipantForm 
+                participantId={selectedParticipant.id}
+                closeModal={closeEditModal}
+              />
+            )}
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   );
 }
+
+const EditParticipantForm = ({ participantId, closeModal }: { 
+  participantId: string,
+  closeModal: () => void
+}) => {
+  const [participantDetails, setParticipantDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState('');
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const response = await getEditDetail(participantId);
+        setParticipantDetails(response.data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load details');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchDetails();
+  }, [participantId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmissionError('');
+    
+    try {
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const updateData = {
+        participant_name: formData.get('participant_name') as string,
+        participant_email: formData.get('participant_email') as string
+      };
+      
+      await updateEditDetail(participantId, updateData);
+      closeModal();
+    } catch (err) {
+      setSubmissionError(err instanceof Error ? err.message : 'Failed to update participant');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) return <Loader />;
+  if (error) return <p className="text-red-600">{error}</p>;
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Participant Name
+          </label>
+          <input
+            name="participant_name"
+            type="text"
+            defaultValue={participantDetails?.participant_name || ''}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Participant Email
+          </label>
+          <input
+            name="participant_email"
+            type="email"
+            defaultValue={participantDetails?.participant_email || ''}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+            required
+          />
+        </div>
+      </div>
+      {submissionError && (
+        <p className="mt-4 text-red-600 text-sm">{submissionError}</p>
+      )}
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={closeModal}
+          className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+    </form>
+  );
+};
