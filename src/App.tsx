@@ -21,12 +21,6 @@ import AllEvent from './pages/Admin/AllEvent';
 import { Guides } from './pages/Admin/Guides';
 import AllEventDetail from './pages/Admin/AllEventDetail';
 
-// Register the service worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js');
-  });
-}
 
 function AppRoutes() {
   const location = useLocation();

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+// AllEventDetail.tsx
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-// Update the icon imports
 import { ArrowLeft, Calendar, MapPin, Users, Edit } from 'lucide-react';
 import { Event, Participant } from '../../types';
 import { getAdminEventDetails } from '../../api/Admin/getAllEventDetail';
@@ -8,6 +8,8 @@ import Loader from '../../components/Loader';
 import { Dialog } from '@headlessui/react';
 import { getEditDetail } from '../../api/Admin/getEditDetail';
 import { updateEditDetail } from '../../api/Admin/updateEditDetail';
+import { getGuideDropdown } from '../../api/Admin/getGuideDropdown';
+import { getEventDropdown } from '../../api/Admin/getEventDropdown';
 
 export default function AllEventDetail() {
   const navigate = useNavigate();
@@ -19,51 +21,51 @@ export default function AllEventDetail() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
 
-  useEffect(() => {
-    const fetchEventData = async () => {
-      try {
-        if (!id) return;
-        const response = await getAdminEventDetails(id);
+  // Define fetchEventData as a function to be called on mount and after updates.
+  const fetchEventData = useCallback(async () => {
+    try {
+      if (!id) return;
+      setLoading(true);
+      const response = await getAdminEventDetails(id);
 
-        
+      // Map event data from the API response to our local event object.
+      setEvent({
+        id: response.data.event_data.id.toString(),
+        title: response.data.event_data.name, 
+        date: response.data.event_data.created_at
+          ? new Date(response.data.event_data.created_at).toLocaleDateString()
+          : 'N/A',
+        location: response.data.event_data.origin,
+        image_url:
+          response.data.event_data.image ||
+          'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
+        participants_count: response.data.total,
+      });
 
-        // Map event data from the API response to our local event object.
-        setEvent({
-          id: response.data.event_data.id.toString(),
-          title: response.data.event_data.name, 
-          date: response.data.event_data.created_at
-            ? new Date(response.data.event_data.created_at).toLocaleDateString()
-            : 'N/A',
-          location: response.data.event_data.origin,
-          image_url:
-            response.data.event_data.image ||
-            'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
-          participants_count: response.data.total,
-        });
-
-        // Map participants from the API response.
-        setParticipants(
-          response.data.data.map((apiParticipant: any) => ({
-            id: apiParticipant.id.toString(),
-            name: apiParticipant.participant_name,
-            email: apiParticipant.participant_email,
-            phone: apiParticipant.phone_number?.startsWith('#')
-              ? 'Invalid Number'
-              : apiParticipant.phone_number || 'N/A',
-            amount: apiParticipant.amount.replace(/\.(?=.*\.)/g, ''),
-            payment_status: apiParticipant.payment_status || 'N/A',
-            checked_in: apiParticipant.is_checked_in === 1,
-          }))
-        );
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load event details');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEventData();
+      // Map participants from the API response.
+      setParticipants(
+        response.data.data.map((apiParticipant: any) => ({
+          id: apiParticipant.id.toString(),
+          name: apiParticipant.participant_name,
+          email: apiParticipant.participant_email,
+          phone: apiParticipant.phone_number?.startsWith('#')
+            ? 'Invalid Number'
+            : apiParticipant.phone_number || 'N/A',
+          amount: apiParticipant.amount.replace(/\.(?=.*\.)/g, ''),
+          payment_status: apiParticipant.payment_status || 'N/A',
+          checked_in: apiParticipant.is_checked_in === 1,
+        }))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load event details');
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchEventData();
+  }, [fetchEventData]);
 
   if (loading) {
     return <Loader />;
@@ -114,7 +116,6 @@ export default function AllEventDetail() {
             </div>
           </div>
 
-          {/* Updated table container with overflow-x-auto and consistent styling */}
           <div className="bg-white rounded-lg shadow-sm overflow-x-auto p-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center">
@@ -155,10 +156,12 @@ export default function AllEventDetail() {
                     <td className="py-3 px-4 whitespace-nowrap">{participant.phone}</td>
                     <td className="py-3 px-4 whitespace-nowrap">€{participant.amount}</td>
                     <td className="py-3 px-4 whitespace-nowrap">
-                      {participant.checked_in ? (
-                        <span className="text-green-600">Checked In</span>
+                      {participant.payment_status === 'Paid' ? (
+                        <span className="text-green-600">Paid</span>
+                      ) : participant.payment_status === 'Failed' ? (
+                        <span className="text-red-600">Failed</span>
                       ) : (
-                        <span className="text-red-600">Pending</span>
+                        <span className="text-yellow-600">Pending</span>
                       )}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
@@ -194,7 +197,8 @@ export default function AllEventDetail() {
               <EditParticipantForm 
                 participantId={selectedParticipant.id}
                 closeModal={closeEditModal}
-              />
+                onUpdate={fetchEventData}  // callback to refresh details after update
+              />  
             )}
           </Dialog.Panel>
         </div>
@@ -203,21 +207,33 @@ export default function AllEventDetail() {
   );
 }
 
-const EditParticipantForm = ({ participantId, closeModal }: { 
-  participantId: string,
-  closeModal: () => void
-}) => {
+interface EditParticipantFormProps {
+  participantId: string;
+  closeModal: () => void;
+  onUpdate: () => void;
+}
+
+const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditParticipantFormProps) => {
   const [participantDetails, setParticipantDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState('');
+  const [eventOptions, setEventOptions] = useState<Array<{id: number, name: string}>>([]);
+  const [guideOptions, setGuideOptions] = useState<Array<{id: number, name: string}>>([]);
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await getEditDetail(participantId);
-        setParticipantDetails(response.data);
+        const [participantRes, eventsRes, guidesRes] = await Promise.all([
+          getEditDetail(participantId),
+          getEventDropdown(),
+          getGuideDropdown()
+        ]);
+        
+        setParticipantDetails(participantRes.data);
+        setEventOptions(eventsRes.data);
+        setGuideOptions(guidesRes.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load details');
       } finally {
@@ -236,11 +252,20 @@ const EditParticipantForm = ({ participantId, closeModal }: {
     try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
       const updateData = {
+        event_id: parseInt(formData.get('event_id') as string),
+        user_id: parseInt(formData.get('guide_id') as string),
         participant_name: formData.get('participant_name') as string,
-        participant_email: formData.get('participant_email') as string
+        participant_email: formData.get('participant_email') as string,
+        phone_number: formData.get('phone_number') as string,
+        amount: parseFloat(formData.get('amount') as string),
+        quantity: parseInt(formData.get('quantity') as string),
+        payment_status: formData.get('payment_status') as string,
+        is_checked_in: formData.get('is_checked_in') ? 1 : 0
       };
       
       await updateEditDetail(participantId, updateData);
+      // After successful update, refresh parent data
+      onUpdate();
       closeModal();
     } catch (err) {
       setSubmissionError(err instanceof Error ? err.message : 'Failed to update participant');
@@ -255,6 +280,43 @@ const EditParticipantForm = ({ participantId, closeModal }: {
   return (
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
+        {/* Dropdown for Event */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Event
+          </label>
+          <select
+            name="event_id"
+            defaultValue={participantDetails?.event_id}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+          >
+            {eventOptions.map(event => (
+              <option key={event.id} value={event.id}>
+                {event.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Dropdown for Guide */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Guide
+          </label>
+          <select
+            name="guide_id"
+            defaultValue={participantDetails?.user_id}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+          >
+            {guideOptions.map(guide => (
+              <option key={guide.id} value={guide.id}>
+                {guide.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Existing fields */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Participant Name
@@ -278,6 +340,72 @@ const EditParticipantForm = ({ participantId, closeModal }: {
             className="mt-1 block w-full rounded border-gray-300 shadow-sm"
             required
           />
+        </div>
+
+        {/* New fields */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Phone Number
+          </label>
+          <input
+            name="phone_number"
+            type="tel"
+            defaultValue={participantDetails?.phone_number || ''}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+            pattern="[0-9]{10}"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Amount
+          </label>
+          <input
+            name="amount"
+            type="number"
+            defaultValue={participantDetails?.amount.replace(/\.(?=.*\.)/g, '') || ''}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+            step="0.01"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Quantity
+          </label>
+          <input
+            name="quantity"
+            type="number"
+            defaultValue={participantDetails?.quantity || 0}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Payment Status
+          </label>
+          <select
+            name="payment_status"
+            defaultValue={participantDetails?.payment_status || 'Pending'}
+            className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+          >
+            <option value="Paid">Paid</option>
+            <option value="Pending">Pending</option>
+            <option value="Failed">Failed</option>
+          </select>
+        </div>
+        
+        <div className="flex items-center gap-2 pt-2">
+          <input
+            type="checkbox"
+            name="is_checked_in"
+            defaultChecked={participantDetails?.is_checked_in === 1}
+            className="rounded border-gray-300 text-blue-600 shadow-sm"
+          />
+          <label className="text-sm font-medium text-gray-700">
+            Checked In
+          </label>
         </div>
       </div>
       {submissionError && (
