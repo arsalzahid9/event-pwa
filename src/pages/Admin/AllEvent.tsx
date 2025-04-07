@@ -1,57 +1,70 @@
+// src/pages/admin/AllEvent.tsx
+
 import { useEffect, useState } from 'react';
-import EventCard from '../../components/EventCard';
 import { Event } from '../../types';
 import { getEvents } from '../../api/Admin/getAllEvents';
 import Loader from '../../components/Loader';
-import { Users } from 'lucide-react';  // Add this import
-
-// Add import at the top
 import { useNavigate } from 'react-router-dom';
+import { Pagination } from '@mui/material';
 
 export default function AllEvent() {
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total: 0,
+    last_page: 1,
+  });
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        // Since getEvents returns an array, map directly on it
-        const eventsArray = await getEvents();
-        setEvents(eventsArray.map((apiEvent: any) => ({
+  const fetchEvents = async () => {
+    try {
+      const response = await getEvents(pagination.current_page, pagination.per_page);
+
+      console.log("response", response);
+
+      // `response.data` is actually an array of events
+      setEvents(
+        response.data.map((apiEvent: any) => ({
           id: apiEvent.id.toString(),
           title: apiEvent.name,
-          date: apiEvent.event_date 
-            ? new Date(apiEvent.event_date).toLocaleDateString() 
+          date: apiEvent.event_date
+            ? new Date(apiEvent.event_date).toLocaleDateString()
             : 'N/A',
           location: apiEvent.origin,
           image_url: apiEvent.image || 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
-          description: 'Explore this amazing event'
-        })));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load events');
-      } finally {
-        setLoading(false);
-      }
-    };
+          description: 'Explore this amazing event',
+        }))
+      );
 
+      setPagination({
+        current_page: response.pagination.current_page,
+        per_page: response.pagination.per_page,
+        total: response.pagination.total,
+        last_page: response.pagination.last_page,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load events');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [pagination.current_page]);
 
-  if (loading) {
-    return <Loader />;
-  }
-
-  if (error) {
-    return <div className="min-h-screen bg-gray-50 p-4">Error: {error}</div>;
-  }
+  if (loading) return <Loader />;
+  if (error) return <div className="min-h-screen bg-gray-50 p-4">Error: {error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">All Events</h1>
       </div>
+
       <div className="bg-white p-6 rounded-xl shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -65,9 +78,9 @@ export default function AllEvent() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {events.map(event => (
-                <tr 
-                  key={event.id} 
+              {events.map((event) => (
+                <tr
+                  key={event.id}
                   className="hover:bg-gray-50 cursor-pointer"
                   onClick={() => navigate(`/all-events/${event.id}`)}
                 >
@@ -77,8 +90,8 @@ export default function AllEvent() {
                   <td className="px-6 py-4 text-sm text-gray-500">{event.description}</td>
                   <td className="px-6 py-4 text-sm">
                     {event.image_url ? (
-                      <img 
-                        src={event.image_url} 
+                      <img
+                        src={event.image_url}
                         alt={event.title}
                         className="h-12 w-12 object-cover rounded"
                       />
@@ -91,6 +104,30 @@ export default function AllEvent() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="mt-4 flex justify-center">
+        <Pagination
+          count={pagination.last_page}
+          page={pagination.current_page}
+          onChange={(_, page) => setPagination((prev) => ({ ...prev, current_page: page }))}
+          variant="outlined"
+          shape="rounded"
+          showFirstButton
+          showLastButton
+          sx={{
+            '& .MuiPaginationItem-root': {
+              fontSize: '0.875rem',
+              '&.Mui-selected': {
+                backgroundColor: '#2563eb',
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: '#1d4ed8',
+                },
+              },
+            },
+          }}
+        />
       </div>
     </div>
   );

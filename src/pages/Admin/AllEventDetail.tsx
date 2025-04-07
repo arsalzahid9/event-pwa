@@ -25,10 +25,12 @@ export default function AllEventDetail() {
         if (!id) return;
         const response = await getAdminEventDetails(id);
 
+        
+
         // Map event data from the API response to our local event object.
         setEvent({
           id: response.data.event_data.id.toString(),
-          title: response.data.event_data.name,
+          title: response.data.event_data.name, 
           date: response.data.event_data.created_at
             ? new Date(response.data.event_data.created_at).toLocaleDateString()
             : 'N/A',
