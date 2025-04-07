@@ -1,8 +1,8 @@
+// main.tsx
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-// REMOVE the virtual:pwa-registration import
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -10,4 +10,4 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>
 );
 
-// REMOVE the service worker registration code
+// No need to manually register service worker — vite-plugin-pwa does it automatically
