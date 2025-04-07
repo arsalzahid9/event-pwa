@@ -35,7 +35,7 @@ export default function AllEvent() {
             : 'N/A',
           location: apiEvent.origin,
           image_url: apiEvent.image || 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
-          description: 'Explore this amazing event',
+          // description: 'Explore this amazing event',
         }))
       );
 
@@ -73,7 +73,7 @@ export default function AllEvent() {
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event Name</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Origin</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Date</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Description</th>
+                {/* <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Description</th> */}
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Image</th>
               </tr>
             </thead>
@@ -87,7 +87,7 @@ export default function AllEvent() {
                   <td className="px-6 py-4 text-sm font-medium">{event.title}</td>
                   <td className="px-6 py-4 text-sm">{event.location}</td>
                   <td className="px-6 py-4 text-sm">{event.date}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{event.description}</td>
+                  {/* <td className="px-6 py-4 text-sm text-gray-500">{event.description}</td> */}
                   <td className="px-6 py-4 text-sm">
                     {event.image_url ? (
                       <img

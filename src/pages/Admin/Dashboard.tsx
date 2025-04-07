@@ -112,7 +112,7 @@ export const Dashboard = () => {
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Guide</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Amount</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Date</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Booking Date</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Status</th>
               </tr>
             </thead>
@@ -134,7 +134,11 @@ export const Dashboard = () => {
                     {new Date(event.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      event.payment_status === 'Paid' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
                       {event.payment_status || 'Pending'}
                     </span>
                   </td>

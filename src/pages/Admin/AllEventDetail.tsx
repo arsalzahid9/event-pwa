@@ -387,7 +387,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
           </label>
           <select
             name="payment_status"
-            defaultValue={participantDetails?.payment_status || 'Pending'}
+            defaultValue={participantDetails?.payment_status}
             className="mt-1 block w-full rounded border-gray-300 shadow-sm"
           >
             <option value="Paid">Paid</option>
