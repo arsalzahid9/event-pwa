@@ -47,6 +47,7 @@ export default function AllEventDetail() {
         response.data.data.map((apiParticipant: any) => ({
           id: apiParticipant.id.toString(),
           name: apiParticipant.participant_name,
+          guideName: apiParticipant.name, // Add this line
           email: apiParticipant.participant_email,
           phone: apiParticipant.phone_number?.startsWith('#')
             ? 'Invalid Number'
@@ -125,19 +126,14 @@ export default function AllEventDetail() {
             </div>
             <table className="min-w-full">
               <thead>
+
                 <tr className="border-b bg-gray-50">
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                    Name
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                    Email
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                    Phone
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                    Amount
-                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Guide</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Name</th>
+
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Email</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Phone</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Amount</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                     Status
                   </th>
@@ -149,11 +145,22 @@ export default function AllEventDetail() {
               <tbody>
                 {participants.map((participant) => (
                   <tr key={participant.id} className="border-b hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-4 whitespace-nowrap">{participant.guideName}</td>
                     <td className="py-3 px-4 whitespace-nowrap">{participant.name}</td>
-                    <td className="py-3 px-4 whitespace-nowrap text-gray-500">
-                      {participant.email}
+
+                    <td className="py-3 px-4 whitespace-nowrap text-gray-500">{participant.email}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {participant.phone.startsWith('Invalid') || participant.phone === 'N/A' ? (
+                        participant.phone
+                      ) : (
+                        <a 
+                          href={`tel:${participant.phone}`} 
+                          // className="text-blue-600 hover:text-blue-800 hover:underline"
+                        >
+                          {participant.phone}
+                        </a>
+                      )}
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap">{participant.phone}</td>
                     <td className="py-3 px-4 whitespace-nowrap">€{participant.amount}</td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.payment_status === 'Paid' ? (

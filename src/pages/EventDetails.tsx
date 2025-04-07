@@ -152,7 +152,16 @@ export default function EventDetails() {
                     {participant.name}
                   </td>
                   <td className="py-3 px-4 whitespace-nowrap">
-                    {participant.phone}
+                    {participant.phone.startsWith('#') ? (
+                      'Invalid Number'
+                    ) : (
+                      <a 
+                        href={`tel:${participant.phone}`} 
+                        // className="text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {participant.phone}
+                      </a>
+                    )}
                   </td>
                   {/* <td className="py-3 px-4 whitespace-nowrap">
                     {event.date}
