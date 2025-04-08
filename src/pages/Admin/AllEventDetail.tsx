@@ -20,6 +20,21 @@ export default function AllEventDetail() {
   const [error, setError] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+  const [isEditingGuide, setIsEditingGuide] = useState(false); // Move this line here
+  const [guideOptions, setGuideOptions] = useState<Array<{id: number, name: string}>>([]); // Move this line here
+
+  // Add this useEffect hook for fetching guides
+  useEffect(() => {
+    const fetchGuides = async () => {
+      try {
+        const response = await getGuideDropdown();
+        setGuideOptions(response.data);
+      } catch (err) {
+        console.error('Error fetching guides:', err);
+      }
+    };
+    fetchGuides();
+  }, []);
 
   // Define fetchEventData as a function to be called on mount and after updates.
   const fetchEventData = useCallback(async () => {
@@ -117,15 +132,38 @@ export default function AllEventDetail() {
             </div>
             <div className="flex items-center text-gray-600">
               <Users className="w-5 h-5 mr-2" />
-              <div className="flex items-center gap-2">
-                <span>Guide: {event?.guide}</span>
-                <button 
-                  onClick={() => setIsEditingGuide(true)}
-                  className="text-blue-600 hover:text-blue-800"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
-              </div>
+              {isEditingGuide ? (
+                <div className="flex items-center gap-2">
+                  <select
+                    value={event?.guide || ''}
+                    onChange={(e) => setEvent(prev => prev ? {...prev, guide: e.target.value} : prev)}
+                    className="rounded border-gray-300 shadow-sm py-1"
+                  >
+                    <option value="">Select Guide</option>
+                    {guideOptions.map(guide => (
+                      <option key={guide.id} value={guide.name}>
+                        {guide.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button 
+                    onClick={() => setIsEditingGuide(false)}
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>Guide: {event?.guide || 'N/A'}</span>
+                  <button 
+                    onClick={() => setIsEditingGuide(true)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
