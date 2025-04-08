@@ -10,6 +10,7 @@ import { getEditDetail } from '../../api/Admin/getEditDetail';
 import { updateEditDetail } from '../../api/Admin/updateEditDetail';
 import { getGuideDropdown } from '../../api/Admin/getGuideDropdown';
 import { getEventDropdown } from '../../api/Admin/getEventDropdown';
+import { updateGuideName } from '../../api/Admin/UpdateGuideName';
 
 export default function AllEventDetail() {
   const navigate = useNavigate();
@@ -20,21 +21,50 @@ export default function AllEventDetail() {
   const [error, setError] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
-  const [isEditingGuide, setIsEditingGuide] = useState(false); // Move this line here
-  const [guideOptions, setGuideOptions] = useState<Array<{id: number, name: string}>>([]); // Move this line here
+  const [isEditingGuide, setIsEditingGuide] = useState(false);
+  const [guideOptions, setGuideOptions] = useState<Array<{id: number, name: string}>>([]);
+  const [guideSearch, setGuideSearch] = useState(''); // Add guide search state here
+  const [selectedGuideId, setSelectedGuideId] = useState<number | null>(null);
+  const [updateGuideLoading, setUpdateGuideLoading] = useState(false);
+  const [updateGuideError, setUpdateGuideError] = useState('');
 
-  // Add this useEffect hook for fetching guides
+  // Add the missing handleGuideUpdate function
+  const handleGuideUpdate = async () => {
+    if (!id || !selectedGuideId) return;
+    
+    setUpdateGuideLoading(true);
+    setUpdateGuideError('');
+    
+    try {
+      await updateGuideName(id, selectedGuideId);
+      setIsEditingGuide(false);
+      fetchEventData(); // Refresh data after update
+    } catch (err) {
+      setUpdateGuideError(err instanceof Error ? err.message : 'Failed to update guide');
+      console.error('Error updating guide:', err);
+    } finally {
+      setUpdateGuideLoading(false);
+    }
+  };
+
+  // Update the useEffect hook to include search parameter
   useEffect(() => {
     const fetchGuides = async () => {
       try {
-        const response = await getGuideDropdown();
+        const response = await getGuideDropdown(guideSearch);
         setGuideOptions(response.data);
       } catch (err) {
         console.error('Error fetching guides:', err);
       }
     };
-    fetchGuides();
-  }, []);
+    
+    // Add debounce to prevent too many API calls
+    const timeoutId = setTimeout(() => {
+      fetchGuides();
+    }, 300);
+    
+    return () => clearTimeout(timeoutId);
+  }, [guideSearch]);
 
   // Define fetchEventData as a function to be called on mount and after updates.
   const fetchEventData = useCallback(async () => {
@@ -133,31 +163,60 @@ export default function AllEventDetail() {
             <div className="flex items-center text-gray-600">
               <Users className="w-5 h-5 mr-2" />
               {isEditingGuide ? (
-                <div className="flex items-center gap-2">
-                  <select
-                    value={event?.guide || ''}
-                    onChange={(e) => setEvent(prev => prev ? {...prev, guide: e.target.value} : prev)}
-                    className="rounded border-gray-300 shadow-sm py-1"
-                  >
-                    <option value="">Select Guide</option>
-                    {guideOptions.map(guide => (
-                      <option key={guide.id} value={guide.name}>
-                        {guide.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button 
-                    onClick={() => setIsEditingGuide(false)}
-                    className="text-gray-600 hover:text-gray-800"
-                  >
-                    <Check className="w-4 h-4" />
-                  </button>
+                <div className="flex flex-col gap-2 w-full">
+                  <div className="relative w-full">
+                    <input
+                      type="text"
+                      value={guideSearch}
+                      onChange={(e) => setGuideSearch(e.target.value)}
+                      placeholder="Search for a guide..."
+                      className="rounded border-gray-300 shadow-sm py-1 px-2 text-sm w-full pr-8"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+                      <button 
+                        onClick={handleGuideUpdate}
+                        disabled={updateGuideLoading || !selectedGuideId}
+                        className="text-gray-600 hover:text-gray-800 disabled:opacity-50"
+                      >
+                        {updateGuideLoading ? (
+                          <span className="animate-spin h-4 w-4 border-t-2 border-gray-500 rounded-full" />
+                        ) : (
+                          <Check className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                    {updateGuideError && (
+                      <p className="text-red-500 text-xs mt-1">{updateGuideError}</p>
+                    )}
+                    {guideOptions.length > 0 && (
+                      <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
+                        {guideOptions.map(guide => (
+                          <div
+                            key={guide.id}
+                            onClick={() => {
+                              setEvent(prev => prev ? {...prev, guide: guide.name} : prev);
+                              setGuideSearch(guide.name);
+                              setSelectedGuideId(guide.id);
+                            }}
+                            className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100"
+                          >
+                            {guide.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <span>Guide: {event?.guide || 'N/A'}</span>
                   <button 
-                    onClick={() => setIsEditingGuide(true)}
+                    onClick={() => {
+                      setIsEditingGuide(true);
+                      setSelectedGuideId(null);
+                      setGuideSearch('');
+                      setUpdateGuideError('');
+                    }}
                     className="text-blue-600 hover:text-blue-800"
                   >
                     <Edit className="w-4 h-4" />

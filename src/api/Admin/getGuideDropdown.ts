@@ -1,7 +1,9 @@
-export const getGuideDropdown = async () => {
+export const getGuideDropdown = async (search?: string) => {
   const token = localStorage.getItem('authToken');
+  const searchParam = search ? `?search=${encodeURIComponent(search)}` : '';
+  
   const response = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/guide-dropdown`,
+    `${import.meta.env.VITE_API_BASE_URL}/guide-dropdown${searchParam}`,
     {
       method: 'GET',
       headers: {

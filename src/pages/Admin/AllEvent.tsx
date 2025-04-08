@@ -36,6 +36,7 @@ export default function AllEvent() {
             : 'N/A',
           location: apiEvent.origin,
           image_url: apiEvent.image || 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
+          guide_names: apiEvent.guide_names || 'N/A',
         }))
       );
 
@@ -92,6 +93,8 @@ export default function AllEvent() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event Name</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Guide Name</th>
+
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Origin</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Date</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Image</th>
@@ -106,6 +109,8 @@ export default function AllEvent() {
                         onClick={() => navigate(`/all-events/${event.id}`)}
                       >
                         <td className="px-6 py-4 text-sm font-medium">{event.title}</td>
+                        <td className="px-6 py-4 text-sm">{event.guide_names}</td>
+
                         <td className="px-6 py-4 text-sm">{event.location}</td>
                         <td className="px-6 py-4 text-sm">{event.date}</td>
                         <td className="px-6 py-4 text-sm">
