@@ -6,7 +6,7 @@ interface Guide {
   id: string;
   name: string;
   email: string;
-  image: string | null;
+  // image: string | null;
 }
 
 export default function EditGuide({ open, onClose, guide, refreshGuides }: {
@@ -20,7 +20,7 @@ export default function EditGuide({ open, onClose, guide, refreshGuides }: {
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [existingImage, setExistingImage] = useState<string | null>(null);
+  // const [existingImage, setExistingImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchGuideDetails = async () => {
@@ -29,7 +29,7 @@ export default function EditGuide({ open, onClose, guide, refreshGuides }: {
           const response = await getGuideEditDetail(guide.id);
           setName(response.data.name);
           setEmail(response.data.email);
-          setExistingImage(response.data.image);
+          // setExistingImage(response.data.image);
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to load guide details');
         }
@@ -48,7 +48,7 @@ export default function EditGuide({ open, onClose, guide, refreshGuides }: {
       const formData = new FormData();
       formData.append('name', name);
       formData.append('email', email);
-      if (image) formData.append('image', image);
+      // if (image) formData.append('image', image);
       
       await updateGuideEditDetail(guide.id, formData);
       refreshGuides();
@@ -98,7 +98,7 @@ export default function EditGuide({ open, onClose, guide, refreshGuides }: {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium mb-1">Profile Image</label>
             <input
               type="file"
@@ -113,7 +113,7 @@ export default function EditGuide({ open, onClose, guide, refreshGuides }: {
                 className="mt-2 h-20 w-20 object-cover rounded"
               />
             )}
-          </div>
+          </div> */}
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 

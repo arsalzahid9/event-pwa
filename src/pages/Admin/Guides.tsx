@@ -11,7 +11,7 @@ interface Guide {
   id: string;
   name: string;
   email: string;
-  image: string | null;
+  // image: string | null;
   // is_admin: string;
 }
 
@@ -82,7 +82,7 @@ export const Guides = () => {
               <tr className="border-b bg-gray-50">
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Name</th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Email</th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Image</th>
+                {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Image</th> */}
                 {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Admin</th> */}
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Actions</th>
               </tr>
@@ -92,7 +92,7 @@ export const Guides = () => {
                 <tr key={guide.id} className="border-b hover:bg-gray-50 transition-colors relative">
                   <td className="py-3 px-4">{guide.name}</td>
                   <td className="py-3 px-4 text-gray-500">{guide.email}</td>
-                  <td className="py-3 px-4">
+                  {/* <td className="py-3 px-4">
                     {guide.image ? (
                       <img
                         src={guide.image}
@@ -102,7 +102,7 @@ export const Guides = () => {
                     ) : (
                       <span className="text-gray-400">No image</span>
                     )}
-                  </td>
+                  </td> */}
                   {/* <td className="py-3 px-4">{guide.is_admin === '1' ? '✓' : '✗'}</td> */}
                   <td className="py-3 px-4 relative">
                     <button
