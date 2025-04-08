@@ -192,5 +192,3 @@ Contributions are welcome! If you have suggestions, bug reports, or feature requ
 
 
 ---
-
-This README outlines the application's purpose, provides detailed instructions for installation and development, and clearly explains the project structure. Adjust the content as necessary to match your specific requirements or any additional features and guidelines for your project.
