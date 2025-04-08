@@ -105,7 +105,7 @@ export default function PersonalSettings() {
             </div>
           </div>
 
-          <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+          {/* <div className="flex items-center p-3 bg-gray-50 rounded-lg">
             <Calendar className="w-5 h-5 text-blue-900 mr-3" />
             <div>
               <label className="text-sm text-gray-600">Member Since</label>
@@ -113,7 +113,7 @@ export default function PersonalSettings() {
                 {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'N/A'}
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
