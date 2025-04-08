@@ -8,7 +8,7 @@ export default function AddGuide({ open, onClose, refreshGuides }: {
 }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [image, setImage] = useState<File | null>(null);
+  // const [image, setImage] = useState<File | null>(null);
   // Remove isAdmin state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export default function AddGuide({ open, onClose, refreshGuides }: {
       formData.append('name', name);
       formData.append('email', email);
       // Remove is_admin from form data
-      if (image) formData.append('image', image);
+      // if (image) formData.append('image', image);
       
       await createGuide(formData);
       refreshGuides();
@@ -29,7 +29,7 @@ export default function AddGuide({ open, onClose, refreshGuides }: {
       // Remove isAdmin from reset
       setName('');
       setEmail('');
-      setImage(null);
+      // setImage(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create guide');
     } finally {
@@ -75,7 +75,7 @@ export default function AddGuide({ open, onClose, refreshGuides }: {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium mb-1">Profile Image</label>
             <input
               type="file"
@@ -83,7 +83,7 @@ export default function AddGuide({ open, onClose, refreshGuides }: {
               className="w-full"
               onChange={(e) => setImage(e.target.files?.[0] || null)}
             />
-          </div>
+          </div> */}
 
           {/* Remove admin privileges checkbox section */}
 
