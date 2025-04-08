@@ -1,7 +1,7 @@
 // AllEventDetail.tsx
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, MapPin, Users, Edit } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check } from 'lucide-react';
 import { Event, Participant } from '../../types';
 import { getAdminEventDetails } from '../../api/Admin/getAllEventDetail';
 import Loader from '../../components/Loader';
@@ -40,6 +40,7 @@ export default function AllEventDetail() {
           response.data.event_data.image ||
           'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
         participants_count: response.data.total,
+        guide: response.data.data[0]?.name || 'N/A' // Add guide name from first participant
       });
 
       // Map participants from the API response.
@@ -47,7 +48,6 @@ export default function AllEventDetail() {
         response.data.data.map((apiParticipant: any) => ({
           id: apiParticipant.id.toString(),
           name: apiParticipant.participant_name,
-          guideName: apiParticipant.name, // Add this line
           email: apiParticipant.participant_email,
           phone: apiParticipant.phone_number?.startsWith('#')
             ? 'Invalid Number'
@@ -115,6 +115,18 @@ export default function AllEventDetail() {
               <Calendar className="w-5 h-5 mr-2" />
               <span>Created at: {event?.date}</span>
             </div>
+            <div className="flex items-center text-gray-600">
+              <Users className="w-5 h-5 mr-2" />
+              <div className="flex items-center gap-2">
+                <span>Guide: {event?.guide}</span>
+                <button 
+                  onClick={() => setIsEditingGuide(true)}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm overflow-x-auto p-4">
@@ -128,7 +140,6 @@ export default function AllEventDetail() {
               <thead>
 
                 <tr className="border-b bg-gray-50">
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Guide</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Name</th>
 
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Email</th>
@@ -145,7 +156,6 @@ export default function AllEventDetail() {
               <tbody>
                 {participants.map((participant) => (
                   <tr key={participant.id} className="border-b hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 whitespace-nowrap">{participant.guideName}</td>
                     <td className="py-3 px-4 whitespace-nowrap">{participant.name}</td>
 
                     <td className="py-3 px-4 whitespace-nowrap text-gray-500">{participant.email}</td>
