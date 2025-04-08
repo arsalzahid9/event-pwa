@@ -1,7 +1,8 @@
 // AllEventDetail.tsx
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check } from 'lucide-react';
+// First, import the X icon from lucide-react
+import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X } from 'lucide-react';
 import { Event, Participant } from '../../types';
 import { getAdminEventDetails } from '../../api/Admin/getAllEventDetail';
 import Loader from '../../components/Loader';
@@ -85,7 +86,7 @@ export default function AllEventDetail() {
           response.data.event_data.image ||
           'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
         participants_count: response.data.total,
-        guide: response.data.data[0]?.name || 'N/A' 
+        guide: response.data.guideEvent || 'N/A' 
       });
 
       // Map participants from the API response.
@@ -149,7 +150,8 @@ export default function AllEventDetail() {
           Back to Events
         </button>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        {/* Single column layout with full width */}
+        <div className="space-y-6">
           <div className="space-y-4">
             <h1 className="text-3xl font-bold">{event?.title}</h1>
             <div className="flex items-center text-gray-600">
@@ -235,37 +237,26 @@ export default function AllEventDetail() {
             </div>
             <table className="min-w-full">
               <thead>
-
                 <tr className="border-b bg-gray-50">
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Name</th>
-
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Email</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Phone</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Amount</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                    Status
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                    Actions
-                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Status</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Check-in</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {participants.map((participant) => (
                   <tr key={participant.id} className="border-b hover:bg-gray-50 transition-colors">
                     <td className="py-3 px-4 whitespace-nowrap">{participant.name}</td>
-
                     <td className="py-3 px-4 whitespace-nowrap text-gray-500">{participant.email}</td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.phone.startsWith('Invalid') || participant.phone === 'N/A' ? (
                         participant.phone
                       ) : (
-                        <a 
-                          href={`tel:${participant.phone}`} 
-                          // className="text-blue-600 hover:text-blue-800 hover:underline"
-                        >
-                          {participant.phone}
-                        </a>
+                        <a href={`tel:${participant.phone}`}>{participant.phone}</a>
                       )}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">€{participant.amount}</td>
@@ -276,6 +267,13 @@ export default function AllEventDetail() {
                         <span className="text-red-600">Failed</span>
                       ) : (
                         <span className="text-yellow-600">Pending</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {participant.checked_in ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <X className="w-4 h-4 text-red-500" />
                       )}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
@@ -395,7 +393,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         {/* Dropdown for Event */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700">
             Event
           </label>
@@ -410,10 +408,10 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
 
         {/* Dropdown for Guide */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700">
             Guide
           </label>
@@ -428,7 +426,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
 
         {/* Existing fields */}
         <div>
