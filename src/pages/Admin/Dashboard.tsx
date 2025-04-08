@@ -29,7 +29,7 @@ export const Dashboard = () => {
 
   const stats = [
     { 
-      title: 'Total Users', 
+      title: 'Total Guide', 
       value: statsData?.total_user || 0,
       icon: <Users className="w-6 h-6" />, 
       color: 'bg-blue-100',
@@ -83,7 +83,7 @@ export const Dashboard = () => {
   return (
     <div className="p-6 space-y-8">
       {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat, index) => (
           <div key={index} className="bg-white p-6 rounded-xl shadow-sm">
             <div className="flex items-center justify-between">
@@ -91,10 +91,11 @@ export const Dashboard = () => {
                 {stat.icon}
               </div>
               <div className="text-right">
+              <p className="text-gray-500">{stat.title}</p>
+
                 <p className="text-2xl font-semibold">
                   {stat.format(stat.value)}
-                </p>
-                <p className="text-gray-500">{stat.title}</p>
+              </p>
               </div>
             </div>
           </div>
