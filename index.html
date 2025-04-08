@@ -2,12 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="icon" type="image/png" href="./assets/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a365d" />
+    <meta name="description" content="A modern tour management app." />
+    
+    <!-- PWA meta tags -->
+    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TourWhiz" />
+    
+    <!-- Additional PWA meta tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="TourWhiz" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-TileColor" content="#1a365d" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
     <title>TourWhiz - Smart Travel Companion</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>

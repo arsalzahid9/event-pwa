@@ -40,7 +40,7 @@ export default function AllEventDetail() {
           response.data.event_data.image ||
           'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
         participants_count: response.data.total,
-        guide: response.data.data[0]?.name || 'N/A' // Add guide name from first participant
+        guide: response.data.data[0]?.name || 'N/A' 
       });
 
       // Map participants from the API response.

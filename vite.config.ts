@@ -3,19 +3,59 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { qrcode } from 'vite-plugin-qrcode';
+import { resolve } from 'path';
 
 export default defineConfig({
+  base: './',
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
   plugins: [
     react(),
     qrcode(),
     VitePWA({
-      registerType: 'autoUpdate', // recommended: auto updates service worker silently
-      includeAssets: [
-        'favicon.ico',
-        'icons/apple-touch-icon.png',
-        'icons/icon-192x192.png',
-        'icons/icon-512x512.png',
-      ],
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      strategies: 'generateSW',
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,gif,webp,woff,woff2,ttf}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      },
       manifest: {
         name: 'TourWhiz',
         short_name: 'TourWhiz',
@@ -24,29 +64,29 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
+        start_url: './',
+        scope: './',
         icons: [
           {
-            src: '/icons/icon-192x192.png',
+            src: './icons/android-chrome-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/icon-512x512.png',
+            src: './icons/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/apple-touch-icon.png',
-            sizes: '180x180',
+            src: './icons/android-chrome-192x192.png',
+            sizes: '192x192',
             type: 'image/png',
-            purpose: 'apple touch icon'
+            purpose: 'maskable'
           },
           {
-            src: '/icons/icon-512x512.png',
+            src: './icons/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
@@ -55,6 +95,17 @@ export default defineConfig({
       }
     }),
   ],
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
+    sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,
