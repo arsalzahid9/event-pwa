@@ -29,7 +29,7 @@ export const Dashboard = () => {
 
   const stats = [
     { 
-      title: 'Total Guide', 
+      title: 'Total Guides', 
       value: statsData?.total_user || 0,
       icon: <Users className="w-6 h-6" />, 
       color: 'bg-blue-100',
@@ -136,8 +136,10 @@ export const Dashboard = () => {
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      event.payment_status === 'Paid' 
-                        ? 'bg-green-100 text-green-800' 
+                      event.payment_status?.toLowerCase() === 'paid'
+                        ? 'bg-green-100 text-green-800'
+                        : event.payment_status?.toLowerCase() === 'failed'
+                        ? 'bg-red-100 text-red-800'
                         : 'bg-yellow-100 text-yellow-800'
                     }`}>
                       {event.payment_status || 'Pending'}

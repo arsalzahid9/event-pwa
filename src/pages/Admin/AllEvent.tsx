@@ -71,7 +71,7 @@ export default function AllEvent() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold">All Events</h1>
+        <h1 className="text-2xl font-bold ml-0 md:ml-8">All Events</h1>
         <input
           type="text"
           placeholder="Search events..."
