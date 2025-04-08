@@ -20,7 +20,7 @@ export default function Events() {
           title: apiEvent.name,
           date: apiEvent.date || 'Date not available',
           location: apiEvent.origin,
-          image_url: 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
+          image_url: apiEvent.image ||'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
           participants_count: response.total_participants,
           description: 'Explore this amazing event'
         })));
