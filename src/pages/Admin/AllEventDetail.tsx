@@ -1,5 +1,5 @@
 // AllEventDetail.tsx
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 // First, import the X icon from lucide-react
 import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X } from 'lucide-react';
@@ -14,6 +14,23 @@ import { getEventDropdown } from '../../api/Admin/getEventDropdown';
 import { updateGuideName } from '../../api/Admin/UpdateGuideName';
 
 export default function AllEventDetail() {
+  // Add this ref near other state declarations
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Add this effect to handle click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsEditingGuide(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const navigate = useNavigate();
   const { id } = useParams();
   const [event, setEvent] = useState<Event | null>(null);
@@ -166,7 +183,7 @@ export default function AllEventDetail() {
             <div className="flex items-center text-gray-600">
               <Users className="w-5 h-5 mr-2" />
               {isEditingGuide ? (
-                <div className="flex flex-col gap-2 w-full">
+                <div className="flex flex-col gap-2 w-full" ref={dropdownRef}>
                   <div className="relative w-full">
                     <input
                       type="text"
