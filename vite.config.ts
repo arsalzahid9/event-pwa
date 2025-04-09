@@ -6,7 +6,7 @@ import { qrcode } from 'vite-plugin-qrcode';
 import { resolve } from 'path';
 
 export default defineConfig({
-  base: './',
+  base: '/',  // Change from './' to '/'
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -25,6 +25,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,gif,webp,woff,woff2,ttf}'],
+        navigateFallback: 'index.html',  // Add this line
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -64,8 +65,8 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: './',
-        scope: './',
+        start_url: '/',  // Change from './' to '/'
+        scope: '/',      // Change from './' to '/'
         icons: [
           {
             src: './icons/android-chrome-192x192.png',
