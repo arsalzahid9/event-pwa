@@ -467,7 +467,8 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
             type="tel"
             defaultValue={participantDetails?.phone_number || ''}
             className="mt-1 block w-full rounded border-gray-300 shadow-sm"
-            pattern="[0-9]{10}"
+            pattern="[0-9+\s-]{8,}"  // Modified pattern to be more flexible
+            title="Please enter a valid phone number (minimum 8 digits, can include +, spaces, and hyphens)"
           />
         </div>
         
