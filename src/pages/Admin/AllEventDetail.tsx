@@ -98,6 +98,7 @@ export default function AllEventDetail() {
           phone: apiParticipant.phone_number?.startsWith('#')
             ? 'Invalid Number'
             : apiParticipant.phone_number || 'N/A',
+          quantity: apiParticipant.quantity ?? 0,  // Changed this line
           amount: apiParticipant.amount.replace(/\.(?=.*\.)/g, ''),
           payment_status: apiParticipant.payment_status || 'N/A',
           checked_in: apiParticipant.is_checked_in === 1,
@@ -241,6 +242,7 @@ export default function AllEventDetail() {
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Name</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Email</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Phone</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Quantity</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Amount</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Status</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Check-in</th>
@@ -259,6 +261,7 @@ export default function AllEventDetail() {
                         <a href={`tel:${participant.phone}`}>{participant.phone}</a>
                       )}
                     </td>
+                    <td className="py-3 px-4 whitespace-nowrap">{participant.quantity ?? 0}</td>
                     <td className="py-3 px-4 whitespace-nowrap">€{participant.amount}</td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.payment_status === 'Paid' ? (
