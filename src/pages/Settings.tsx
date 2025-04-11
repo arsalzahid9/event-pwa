@@ -22,7 +22,7 @@ export default function Settings() {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('authToken'); // Clear token
+      localStorage.removeItem('authToken');
       setUser(null);
       navigate('/login');
     }
@@ -31,54 +31,61 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white p-4 flex items-center gap-4 shadow-sm">
-        <button onClick={() => navigate(-1)} className="text-gray-600">
+        <button onClick={() => navigate(-1)} className="text-gray-600 hover:text-gray-800">
           <ArrowLeft size={24} />
         </button>
-        <h1 className="text-xl font-semibold">Account Settings</h1>
+        <div className="flex items-center">
+          <User className="text-blue-900 mr-2" size={28} />
+          <h1 className="text-xl font-semibold text-blue-900">Account Settings</h1>
+        </div>
       </div>
 
-      
-
-      <div className="mt-6 bg-white">
+      <div className="bg-white p-6 mt-6 space-y-4 mx-4 rounded-lg shadow-sm">
         <Link 
           to="/personal-settings"
-          className="w-full p-4 flex items-center justify-between text-left border-b hover:bg-gray-50"
+          className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          <div className="flex items-center gap-3">
-            <User className="text-gray-600" size={20} />
+          <User className="w-5 h-5 text-blue-900 mr-3" />
+          <div className="flex-1">
             <span className="font-medium">Personal Details</span>
+            <p className="text-sm text-gray-600">Manage your personal information</p>
           </div>
-          <ChevronRight className="text-gray-400" size={20} />
+          <ChevronRight className="w-5 h-5 text-gray-400" />
         </Link>
 
         <Link 
-          to="/privacy-security" 
-          className="w-full p-4 flex items-center justify-between text-left border-b hover:bg-gray-50"
+          to="/privacy-security"
+          className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          <div className="flex items-center gap-3">
-            <Lock className="text-gray-600" size={20} />
+          <Lock className="w-5 h-5 text-blue-900 mr-3" />
+          <div className="flex-1">
             <span className="font-medium">Privacy & Security</span>
+            <p className="text-sm text-gray-600">Manage your account security</p>
           </div>
-          <ChevronRight className="text-gray-400" size={20} />
+          <ChevronRight className="w-5 h-5 text-gray-400" />
         </Link>
-        
+
         <Link 
-          to="/help-support" 
-          className="w-full p-4 flex items-center justify-between text-left border-b hover:bg-gray-50"
+          to="/help-support"
+          className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          <div className="flex items-center gap-3">
-            <HelpCircle className="text-gray-600" size={20} />
+          <HelpCircle className="w-5 h-5 text-blue-900 mr-3" />
+          <div className="flex-1">
             <span className="font-medium">Help & Support</span>
+            <p className="text-sm text-gray-600">Get help and contact support</p>
           </div>
-          <ChevronRight className="text-gray-400" size={20} />
+          <ChevronRight className="w-5 h-5 text-gray-400" />
         </Link>
 
         <button 
           onClick={handleLogout}
-          className="w-full p-4 flex items-center gap-3 text-left text-red-600"
+          className="w-full flex items-center p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
         >
-          <LogOut size={20} />
-          <span className="font-medium">Logout</span>
+          <LogOut className="w-5 h-5 text-red-600 mr-3" />
+          <div className="flex-1 text-left">
+            <span className="font-medium text-red-600">Logout</span>
+            <p className="text-sm text-red-500">Sign out of your account</p>
+          </div>
         </button>
       </div>
     </div>
