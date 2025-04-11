@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 // First, import the X icon from lucide-react
-import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X, UserX } from 'lucide-react';
 import { Event, Participant } from '../../types';
 import { getAdminEventDetails } from '../../api/Admin/getAllEventDetail';
 import Loader from '../../components/Loader';
@@ -267,46 +267,51 @@ export default function AllEventDetail() {
                 </tr>
               </thead>
               <tbody>
-                {participants.map((participant) => (
-                  <tr key={participant.id} className="border-b hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 whitespace-nowrap">{participant.name}</td>
-                    <td className="py-3 px-4 whitespace-nowrap text-gray-500">{participant.email}</td>
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      {participant.phone.startsWith('Invalid') || participant.phone === 'N/A' ? (
-                        participant.phone
-                      ) : (
-                        <a href={`tel:${participant.phone}`}>{participant.phone}</a>
-                      )}
+                {participants.length > 0 ? (
+                  participants.map((participant) => (
+                    <tr key={participant.id} className="border-b hover:bg-gray-50 transition-colors">
+                      <td className="py-3 px-4 whitespace-nowrap">{participant.name}</td>
+                      <td className="py-3 px-4 whitespace-nowrap text-gray-500">{participant.email}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        {participant.phone.startsWith('Invalid') || participant.phone === 'N/A' ? (
+                          participant.phone
+                        ) : (
+                          <a href={`tel:${participant.phone}`}>{participant.phone}</a>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">{participant.quantity ?? 0}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{participant.amount}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        {participant.payment_status === 'Paid' ? (
+                          <span className="text-green-600">Paid</span>
+                        ) : participant.payment_status === 'Failed' ? (
+                          <span className="text-red-600">Failed</span>
+                        ) : (
+                          <span className="text-yellow-600">Pending</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        {participant.checked_in ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <X className="w-4 h-4 text-red-500" />
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="text-center py-12">
+                      <div className="flex flex-col items-center justify-center">
+                        <UserX size={48} className="text-gray-300 mb-3" />
+                        <p className="text-lg font-medium text-gray-600 mb-1">No Participants Found</p>
+                        <p className="text-sm text-gray-400">
+                          There are no participants registered for this event yet
+                        </p>
+                      </div>
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap">{participant.quantity ?? 0}</td>
-                    <td className="py-3 px-4 whitespace-nowrap">{participant.amount}</td>
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      {participant.payment_status === 'Paid' ? (
-                        <span className="text-green-600">Paid</span>
-                      ) : participant.payment_status === 'Failed' ? (
-                        <span className="text-red-600">Failed</span>
-                      ) : (
-                        <span className="text-yellow-600">Pending</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      {participant.checked_in ? (
-                        <Check className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <X className="w-4 h-4 text-red-500" />
-                      )}
-                    </td>
-                    {/* <td className="py-3 px-4 whitespace-nowrap">
-                      <button
-                        onClick={() => openEditModal(participant)}
-                        className="flex items-center text-blue-600 hover:text-blue-900 transition-colors"
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </button>
-                    </td> */}
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

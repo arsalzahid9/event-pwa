@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Plus, Edit, Trash } from 'lucide-react';
+import { MoreHorizontal, Plus, Edit, Trash, Users } from 'lucide-react';
 import Loader from '../../components/Loader';
 import { getGuides } from '../../api/Admin/getGuide';
 import { Pagination } from '@mui/material';
@@ -87,51 +87,54 @@ export const Guides = () => {
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Actions</th>
               </tr>
             </thead>
+            
             <tbody>
-              {guides.map((guide) => (
-                <tr key={guide.id} className="border-b hover:bg-gray-50 transition-colors relative">
-                  <td className="py-3 px-4">{guide.name}</td>
-                  <td className="py-3 px-4 text-gray-500">{guide.email}</td>
-                  {/* <td className="py-3 px-4">
-                    {guide.image ? (
-                      <img
-                        src={guide.image}
-                        alt={guide.name}
-                        className="h-10 w-10 object-cover rounded"
-                      />
-                    ) : (
-                      <span className="text-gray-400">No image</span>
-                    )}
-                  </td> */}
-                  {/* <td className="py-3 px-4">{guide.is_admin === '1' ? '✓' : '✗'}</td> */}
-                  <td className="py-3 px-4 relative">
-                    <button
-                      onClick={() =>
-                        setOpenDropdownGuideId(openDropdownGuideId === guide.id ? null : guide.id)
-                      }
-                      className="p-1 rounded hover:bg-gray-200"
-                    >
-                      <MoreHorizontal className="w-5 h-5" />
-                    </button>
-                    {openDropdownGuideId === guide.id && (
-                      <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg rounded z-10">
-                        <button
-                          onClick={() => handleEdit(guide)}
-                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <Edit className="w-4 h-4 mr-2" /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(guide)}
-                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <Trash className="w-4 h-4 mr-2" /> Delete
-                        </button>
-                      </div>
-                    )}
+              {guides.length > 0 ? (
+                guides.map((guide) => (
+                  <tr key={guide.id} className="border-b hover:bg-gray-50 transition-colors relative">
+                    <td className="py-3 px-4">{guide.name}</td>
+                    <td className="py-3 px-4 text-gray-500">{guide.email}</td>
+                    <td className="py-3 px-4 relative">
+                      <button
+                        onClick={() =>
+                          setOpenDropdownGuideId(openDropdownGuideId === guide.id ? null : guide.id)
+                        }
+                        className="p-1 rounded hover:bg-gray-200"
+                      >
+                        <MoreHorizontal className="w-5 h-5" />
+                      </button>
+                      {openDropdownGuideId === guide.id && (
+                        <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg rounded z-10">
+                          <button
+                            onClick={() => handleEdit(guide)}
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <Edit className="w-4 h-4 mr-2" /> Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(guide)}
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <Trash className="w-4 h-4 mr-2" /> Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="text-center py-12">
+                    <div className="flex flex-col items-center justify-center">
+                      <Users size={48} className="text-gray-300 mb-3" />
+                      <p className="text-lg font-medium text-gray-600 mb-1">No Guides Found</p>
+                      <p className="text-sm text-gray-400">
+                        Click the "Add Guide" button to create a new guide
+                      </p>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
 

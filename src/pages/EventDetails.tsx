@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Users } from 'lucide-react';
+import { ArrowLeft, Users, UserX } from 'lucide-react'; // Add UserX import
 import { Event, Participant } from '../types';
 import { getEventDetails } from '../api/Guide/eventDetail';
 import { checkInParticipant } from '../api/Guide/eventCheckin';
@@ -106,7 +106,7 @@ export default function EventDetails() {
 
       <div className="p-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">{event.title}</h1>
+          <h1 className="text-2xl font-bold pl-2">{event.title}</h1>
           <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full">
             <Users size={18} className="text-gray-600" />
             <span className="ml-1 text-gray-600">
@@ -146,61 +146,69 @@ export default function EventDetails() {
               </tr>
             </thead>
             <tbody>
-              {participants.map((participant) => (
-                <tr key={participant.id} className="border-b">
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    {participant.name}
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    {participant.phone.startsWith('#') ? (
-                      'Invalid Number'
-                    ) : (
-                      <a 
-                        href={`tel:${participant.phone}`} 
-                        // className="text-blue-600 hover:text-blue-800 hover:underline"
-                      >
-                        {participant.phone}
-                      </a>
-                    )}
-                  </td>
-                  {/* <td className="py-3 px-4 whitespace-nowrap">
-                    {event.date}
-                  </td> */}
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    {participant.tickets}
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    ${participant.amount}
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    {participant.payment_completed ? (
-                      <span className="text-green-600">Paid</span>
-                    ) : (
-                      <span className="text-red-600">Not Paid</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    {participant.checked_in ? (
-                      <span className="text-green-600">Checked In</span>
-                    ) : (
-                      <span className="text-red-600">Pending</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={participant.checked_in}
-                        onChange={() =>
-                          handleCheckIn(participant.id, participant.checked_in)
-                        }
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
+              {participants.length > 0 ? (
+                participants.map((participant) => (
+                  <tr key={participant.id} className="border-b">
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {participant.name}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {participant.phone.startsWith('#') ? (
+                        'Invalid Number'
+                      ) : (
+                        <a href={`tel:${participant.phone}`}>
+                          {participant.phone}
+                        </a>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {participant.tickets}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      ${participant.amount}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {participant.payment_completed ? (
+                        <span className="text-green-600">Paid</span>
+                      ) : (
+                        <span className="text-red-600">Not Paid</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {participant.checked_in ? (
+                        <span className="text-green-600">Checked In</span>
+                      ) : (
+                        <span className="text-red-600">Pending</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={participant.checked_in}
+                          onChange={() =>
+                            handleCheckIn(participant.id, participant.checked_in)
+                          }
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="text-center py-12">
+                    <div className="flex flex-col items-center justify-center">
+                      <UserX size={48} className="text-gray-300 mb-3" />
+                      <p className="text-lg font-medium text-gray-600 mb-1">No Participants Found</p>
+                      <p className="text-sm text-gray-400">
+                        There are no participants registered for this event yet
+                      </p>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

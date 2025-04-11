@@ -7,6 +7,7 @@ import Loader from '../../components/Loader';
 import { useNavigate } from 'react-router-dom';
 import { Pagination } from '@mui/material';
 import debounce from 'lodash.debounce';
+import { Calendar } from 'lucide-react'; // Add this import
 
 export default function AllEvent() {
   const navigate = useNavigate();
@@ -128,8 +129,16 @@ export default function AllEvent() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={4} className="text-center py-6 text-gray-500">
-                        No events found.
+                      <td colSpan={5} className="text-center py-12">
+                        <div className="flex flex-col items-center justify-center">
+                          <Calendar size={48} className="text-gray-300 mb-3" />
+                          <p className="text-lg font-medium text-gray-600 mb-1">No Events Found</p>
+                          <p className="text-sm text-gray-400">
+                            {debouncedSearch 
+                              ? "No events match your search criteria" 
+                              : "There are no events available at the moment"}
+                          </p>
+                        </div>
                       </td>
                     </tr>
                   )}

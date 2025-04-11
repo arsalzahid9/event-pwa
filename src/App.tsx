@@ -20,6 +20,7 @@ import { Dashboard } from './pages/Admin/Dashboard';
 import AllEvent from './pages/Admin/AllEvent';
 import { Guides } from './pages/Admin/Guides';
 import AllEventDetail from './pages/Admin/AllEventDetail';
+import NotFound from './pages/NotFound';
 
 
 function AppRoutes() {
@@ -60,9 +61,11 @@ function AppRoutes() {
             <Route path="/all-events" element={<AllEvent />} />
             <Route path="/all-events/:id" element={<AllEventDetail />} />
             <Route path="/guides" element={<Guides />} />
-            {/* Add additional admin routes here */}
           </>
         )}
+
+        {/* 404 Route - Keep this last */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       {/* Render Bottom Navigation if not on an auth page */}

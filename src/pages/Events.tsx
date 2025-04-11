@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import EventCard from '../components/EventCard';
 import { Event } from '../types';
-import { Users } from 'lucide-react';
+import { Users, Calendar } from 'lucide-react'; // Add Calendar icon
 import { getEvents } from '../api/Guide/events';
 import Loader from '../components/Loader';
 
@@ -46,17 +46,24 @@ export default function Events() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">All Events</h1>
-        {/* <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full">
-          <Users size={18} className="text-gray-600" />
-          <span className="ml-1 text-gray-600">{totalParticipants}</span>
-        </div> */}
+        {/* <h1 className="text-2xl font-bold">All Events</h1> */}
+        <h1 className="text-2xl font-bold ml-0 md:ml-8">All Events</h1>
+
       </div>
-      <div className="space-y-4">
-        {events.map(event => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
+      
+      {events.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
+          <Calendar size={64} className="text-gray-300 mb-4" />
+          <h2 className="text-xl font-semibold mb-2">No Events Found</h2>
+          <p className="text-gray-400">There are currently no events available.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {events.map(event => (
+            <EventCard key={event.id} event={event} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
