@@ -117,7 +117,7 @@ export default function AllEventDetail() {
             : apiParticipant.phone_number || 'N/A',
           quantity: apiParticipant.quantity ?? 0,  // Changed this line
           amount: apiParticipant.amount.replace(/\.(?=.*\.)/g, ''),
-          payment_status: apiParticipant.payment_status || 'N/A',
+          payment_status: apiParticipant.payment_status,
           checked_in: apiParticipant.is_checked_in === 1,
         }))
       );
