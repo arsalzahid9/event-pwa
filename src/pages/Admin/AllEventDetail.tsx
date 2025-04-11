@@ -263,7 +263,7 @@ export default function AllEventDetail() {
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Amount</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Status</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Check-in</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Actions</th>
+                  {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Actions</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -296,7 +296,7 @@ export default function AllEventDetail() {
                         <X className="w-4 h-4 text-red-500" />
                       )}
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    {/* <td className="py-3 px-4 whitespace-nowrap">
                       <button
                         onClick={() => openEditModal(participant)}
                         className="flex items-center text-blue-600 hover:text-blue-900 transition-colors"
@@ -304,7 +304,7 @@ export default function AllEventDetail() {
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>

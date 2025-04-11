@@ -47,7 +47,7 @@ export const Dashboard = () => {
       value: statsData?.total_order_amount || 0,
       icon: <Euro className="w-6 h-6" />, 
       color: 'bg-green-100',
-      format: (val: number) => `€${val.toFixed(2)}`
+      format: (val: number) => `${val.toFixed(2)}`
     },
     { 
       title: 'Revenue Share', 
@@ -128,7 +128,7 @@ export const Dashboard = () => {
                   <td className="px-6 py-4 text-sm">{event.guide_name}</td>
                   <td className="px-6 py-4 text-sm">
                     <div className="font-medium">
-                      €{parseFloat(event.amount.replace(/\.(?=.*\.)/g, '')).toFixed(2)}
+                      {parseFloat(event.amount.replace(/\.(?=.*\.)/g, '')).toFixed(2)}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm">
@@ -142,7 +142,7 @@ export const Dashboard = () => {
                         ? 'bg-red-100 text-red-800'
                         : 'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {event.payment_status || 'Pending'}
+                      {event.payment_status}
                     </span>
                   </td>
                 </tr>
