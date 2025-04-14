@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Plus, Edit, Trash, Users } from 'lucide-react';
+// First, import Crown icon
+import { MoreHorizontal, Plus, Edit, Trash, Users, Crown } from 'lucide-react';
 import Loader from '../../components/Loader';
 import { getGuides } from '../../api/Admin/getGuide';
 import { Pagination } from '@mui/material';
@@ -92,7 +93,16 @@ export const Guides = () => {
               {guides.length > 0 ? (
                 guides.map((guide) => (
                   <tr key={guide.id} className="border-b hover:bg-gray-50 transition-colors relative">
-                    <td className="py-3 px-4">{guide.name}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        {guide.is_admin === "1" && (
+                          <Crown className="w-4 h-4 text-yellow-500" />
+                        )}
+                        <span className={guide.is_admin === "1" ? "text-blue-600 font-medium" : ""}>
+                          {guide.name}
+                        </span>
+                      </div>
+                    </td>
                     <td className="py-3 px-4 text-gray-500">{guide.email}</td>
                     <td className="py-3 px-4 relative">
                       <button

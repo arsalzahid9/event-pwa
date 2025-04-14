@@ -111,8 +111,17 @@ export default function AllEvent() {
                       >
                         <td className="px-6 py-4 text-sm font-medium">{event.title}</td>
                         <td className="px-6 py-4 text-sm">{event.guide_names}</td>
-
-                        <td className="px-6 py-4 text-sm">{event.location}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <a 
+                            href={event.location}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {event.location}
+                          </a>
+                        </td>
                         <td className="px-6 py-4 text-sm">{event.date}</td>
                         <td className="px-6 py-4 text-sm">
                           {event.image_url ? (

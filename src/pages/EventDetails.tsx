@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Users, UserX } from 'lucide-react'; // Add UserX import
+import { ArrowLeft, Users, UserX, MapPin, Calendar } from 'lucide-react'; // Add MapPin and Calendar imports
 import { Event, Participant } from '../types';
 import { getEventDetails } from '../api/Guide/eventDetail';
 import { checkInParticipant } from '../api/Guide/eventCheckin';
@@ -97,7 +97,7 @@ export default function EventDetails() {
           className="w-full h-48 object-cover"
         />
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/events')}
           className="absolute top-4 left-4 bg-white p-2 rounded-full shadow-md"
         >
           <ArrowLeft size={20} />
@@ -105,14 +105,36 @@ export default function EventDetails() {
       </div>
 
       <div className="p-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold pl-2">{event.title}</h1>
-          <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full">
-            <Users size={18} className="text-gray-600" />
-            <span className="ml-1 text-gray-600">
-              {event.participants_count}
-            </span>
+        <div className="flex flex-col mb-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center pl-2 gap-3 md:gap-0">
+            <div className="flex items-center">
+              {/* <Calendar size={20}  className="text-gray-600 mr-2" /> */}
+              <h1 className="text-2xl font-bold">{event.title}</h1>
+            </div>
+            {/* <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full self-start md:self-auto">
+              <Users size={18} className="text-gray-600" />
+              <span className="ml-1 text-gray-600">
+                {event.participants_count}
+              </span>
+            </div> */}
           </div>
+          <div className="flex items-center pl-2 mt-1">
+            <MapPin size={16} className="text-gray-600 mr-2" />
+            <a 
+              href={event.location}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 hover:underline text-sm"
+            >
+              {event.location}
+            </a>
+          </div>
+          <div className="flex items-center  px-3 py-1 rounded-full self-start md:self-auto">
+              <Users size={18} className="text-gray-600" />
+              <span className="ml-1 text-gray-600">
+                {event.participants_count}
+              </span>
+            </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
@@ -153,19 +175,18 @@ export default function EventDetails() {
                       {participant.name}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
-                      {participant.phone.startsWith('#') ? (
-                        'Invalid Number'
+                      {participant.phone ? (
+                        <a href={`tel:${participant.phone}`}>{participant.phone}</a>
                       ) : (
-                        <a href={`tel:${participant.phone}`}>
-                          {participant.phone}
-                        </a>
+                        <span className="text-gray-400">N/A</span>
                       )}
                     </td>
+
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.tickets}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
-                      ${participant.amount}
+                      {participant.amount}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.payment_completed ? (

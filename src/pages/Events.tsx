@@ -21,10 +21,10 @@ export default function Events() {
           date: apiEvent.date || 'Date not available',
           location: apiEvent.origin,
           image_url: apiEvent.image ||'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
-          participants_count: response.total_participants,
+          participants_count: apiEvent.total_participants,
           description: 'Explore this amazing event'
         })));
-        setTotalParticipants(response.total_participants);
+        setTotalParticipants(response.data.total_participants);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load events');
       } finally {
