@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Users, UserX, MapPin, Calendar } from 'lucide-react'; // Add MapPin and Calendar imports
+import { ArrowLeft, Users, UserX, MapPin, Calendar, ExternalLink } from 'lucide-react';
 import { Event, Participant } from '../types';
 import { getEventDetails } from '../api/Guide/eventDetail';
 import { checkInParticipant } from '../api/Guide/eventCheckin';
@@ -32,6 +32,7 @@ export default function EventDetails() {
             'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
           participants_count: response.data.length,
           description: 'Event description',
+          event_link: response.event_data.event_link || null // Add this line
         });
 
         setParticipants(
@@ -109,7 +110,22 @@ export default function EventDetails() {
           <div className="flex flex-col md:flex-row md:justify-between md:items-center pl-2 gap-3 md:gap-0">
             <div className="flex items-center">
               {/* <Calendar size={20}  className="text-gray-600 mr-2" /> */}
-              <h1 className="text-2xl font-bold">{event.title}</h1>
+              <div className="flex items-center">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  {event.title}
+                  {event.event_link && (
+                    <a
+                      href={event.event_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800"
+                      title="View event page"
+                    >
+                      <ExternalLink className="w-5 h-5" />
+                    </a>
+                  )}
+                </h1>
+              </div>
             </div>
             {/* <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full self-start md:self-auto">
               <Users size={18} className="text-gray-600" />
@@ -120,7 +136,7 @@ export default function EventDetails() {
           </div>
           <div className="flex items-center pl-2 mt-1">
             <MapPin size={16} className="text-gray-600 mr-2" />
-            <a 
+            <a
               href={event.location}
               target="_blank"
               rel="noopener noreferrer"
@@ -130,11 +146,11 @@ export default function EventDetails() {
             </a>
           </div>
           <div className="flex items-center  px-3 py-1 rounded-full self-start md:self-auto">
-              <Users size={18} className="text-gray-600" />
-              <span className="ml-1 text-gray-600">
-                {event.participants_count}
-              </span>
-            </div>
+            <Users size={18} className="text-gray-600" />
+            <span className="ml-1 text-gray-600">
+              {event.participants_count}
+            </span>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm overflow-x-auto">

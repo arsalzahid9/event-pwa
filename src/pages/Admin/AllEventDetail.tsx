@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 // First, import the X icon from lucide-react
-import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X, UserX } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X, UserX, ExternalLink } from 'lucide-react';
 import { Event, Participant } from '../../types';
 import { getAdminEventDetails } from '../../api/Admin/getAllEventDetail';
 import Loader from '../../components/Loader';
@@ -40,7 +40,7 @@ export default function AllEventDetail() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [isEditingGuide, setIsEditingGuide] = useState(false);
-  const [guideOptions, setGuideOptions] = useState<Array<{id: number, name: string}>>([]);
+  const [guideOptions, setGuideOptions] = useState<Array<{ id: number, name: string }>>([]);
   const [guideSearch, setGuideSearch] = useState(''); // Add guide search state here
   const [selectedGuideId, setSelectedGuideId] = useState<number | null>(null);
   const [updateGuideLoading, setUpdateGuideLoading] = useState(false);
@@ -49,10 +49,10 @@ export default function AllEventDetail() {
   // Add the missing handleGuideUpdate function
   const handleGuideUpdate = async () => {
     if (!id || !selectedGuideId) return;
-    
+
     setUpdateGuideLoading(true);
     setUpdateGuideError('');
-    
+
     try {
       await updateGuideName(id, selectedGuideId);
       setIsEditingGuide(false);
@@ -75,12 +75,12 @@ export default function AllEventDetail() {
         console.error('Error fetching guides:', err);
       }
     };
-    
+
     // Add debounce to prevent too many API calls
     const timeoutId = setTimeout(() => {
       fetchGuides();
     }, 300);
-    
+
     return () => clearTimeout(timeoutId);
   }, [guideSearch]);
 
@@ -94,7 +94,7 @@ export default function AllEventDetail() {
       // Map event data from the API response to our local event object.
       setEvent({
         id: response.data.event_data.id.toString(),
-        title: response.data.event_data.name, 
+        title: response.data.event_data.name,
         date: response.data.event_data.created_at
           ? new Date(response.data.event_data.created_at).toLocaleDateString()
           : 'N/A',
@@ -103,7 +103,8 @@ export default function AllEventDetail() {
           response.data.event_data.image ||
           'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
         participants_count: response.data.total,
-        guide: response.data.guideEvent || 'N/A' 
+        guide: response.data.guideEvent || 'N/A',
+        event_link: response.data.event_data.event_link || null // Add this line
       });
 
       // Map participants from the API response.
@@ -171,10 +172,23 @@ export default function AllEventDetail() {
         {/* Single column layout with full width */}
         <div className="space-y-6">
           <div className="space-y-4">
-            <h1 className="text-3xl font-bold">{event?.title}</h1>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              {event?.title}
+              {event?.event_link && (
+                <a
+                  href={event.event_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800"
+                  title="View event page"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                </a>
+              )}
+            </h1>
             <div className="flex items-center text-gray-600">
               <MapPin className="w-5 h-5 mr-2" />
-              <a 
+              <a
                 href={event?.location}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -200,7 +214,7 @@ export default function AllEventDetail() {
                       className="rounded border-gray-300 shadow-sm py-1 px-2 text-sm w-full pr-8"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-2">
-                      <button 
+                      <button
                         onClick={handleGuideUpdate}
                         disabled={updateGuideLoading || !selectedGuideId}
                         className="text-gray-600 hover:text-gray-800 disabled:opacity-50"
@@ -221,7 +235,7 @@ export default function AllEventDetail() {
                           <div
                             key={guide.id}
                             onClick={() => {
-                              setEvent(prev => prev ? {...prev, guide: guide.name} : prev);
+                              setEvent(prev => prev ? { ...prev, guide: guide.name } : prev);
                               setGuideSearch(guide.name);
                               setSelectedGuideId(guide.id);
                             }}
@@ -237,7 +251,7 @@ export default function AllEventDetail() {
               ) : (
                 <div className="flex items-center gap-2">
                   <span>Guide: {event?.guide || 'N/A'}</span>
-                  <button 
+                  <button
                     onClick={() => {
                       setIsEditingGuide(true);
                       setSelectedGuideId(null);
@@ -338,11 +352,11 @@ export default function AllEventDetail() {
               Edit Participant Details
             </Dialog.Title>
             {selectedParticipant && (
-              <EditParticipantForm 
+              <EditParticipantForm
                 participantId={selectedParticipant.id}
                 closeModal={closeEditModal}
                 onUpdate={fetchEventData}  // callback to refresh details after update
-              />  
+              />
             )}
           </Dialog.Panel>
         </div>
@@ -363,8 +377,8 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState('');
-  const [eventOptions, setEventOptions] = useState<Array<{id: number, name: string}>>([]);
-  const [guideOptions, setGuideOptions] = useState<Array<{id: number, name: string}>>([]);
+  const [eventOptions, setEventOptions] = useState<Array<{ id: number, name: string }>>([]);
+  const [guideOptions, setGuideOptions] = useState<Array<{ id: number, name: string }>>([]);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -374,7 +388,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
           getEventDropdown(),
           getGuideDropdown()
         ]);
-        
+
         setParticipantDetails(participantRes.data);
         setEventOptions(eventsRes.data);
         setGuideOptions(guidesRes.data);
@@ -384,7 +398,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
         setLoading(false);
       }
     };
-    
+
     fetchDetails();
   }, [participantId]);
 
@@ -392,7 +406,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
     e.preventDefault();
     setIsSubmitting(true);
     setSubmissionError('');
-    
+
     try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
       const updateData = {
@@ -406,7 +420,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
         payment_status: formData.get('payment_status') as string,
         is_checked_in: formData.get('is_checked_in') ? 1 : 0
       };
-      
+
       await updateEditDetail(participantId, updateData);
       // After successful update, refresh parent data
       onUpdate();
@@ -500,7 +514,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
             title="Please enter a valid phone number (minimum 8 digits, can include +, spaces, and hyphens)"
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Amount
@@ -513,7 +527,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
             step="0.01"
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Quantity
@@ -525,7 +539,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
             className="mt-1 block w-full rounded border-gray-300 shadow-sm"
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Payment Status
@@ -540,7 +554,7 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
             <option value="Failed">Failed</option>
           </select>
         </div>
-        
+
         <div className="flex items-center gap-2 pt-2">
           <input
             type="checkbox"
