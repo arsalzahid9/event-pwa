@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
-
+import ScrollToTop from './components/ScrollToTop';
 import Login from './pages/Login';
 import Events from './pages/Events';
 import Settings from './pages/Settings';
@@ -38,6 +38,7 @@ function AppRoutes() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
+      <ScrollToTop />
       <Routes>
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
