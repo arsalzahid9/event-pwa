@@ -108,6 +108,7 @@ export default function AllEventDetail() {
       });
 
       // Map participants from the API response.
+      // In the fetchEventData function, update the participant mapping
       setParticipants(
         response.data.data.map((apiParticipant: any) => ({
           id: apiParticipant.id.toString(),
@@ -116,10 +117,11 @@ export default function AllEventDetail() {
           phone: apiParticipant.phone_number?.startsWith('#')
             ? 'Invalid Number'
             : apiParticipant.phone_number || 'N/A',
-          quantity: apiParticipant.quantity ?? 0,  // Changed this line
+          quantity: apiParticipant.quantity ?? 0,
           amount: apiParticipant.amount.replace(/\.(?=.*\.)/g, ''),
           payment_status: apiParticipant.payment_status,
           checked_in: apiParticipant.is_checked_in === 1,
+          guest_origin: apiParticipant.guest_origin || 'N/A', // Add this line
         }))
       );
     } catch (err) {
@@ -283,6 +285,7 @@ export default function AllEventDetail() {
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Quantity</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Amount</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Status</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Origin</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Check-in</th>
                   {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Actions</th> */}
                 </tr>
@@ -302,11 +305,20 @@ export default function AllEventDetail() {
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">{participant.quantity ?? 0}</td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        {participant.amount}
-
+                        {participant.payment_status?.toLowerCase() === 'paid' ? '****' : participant.amount}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {participant.payment_status}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <a 
+                          href={participant.guest_origin} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 hover:underline"
+                        >
+                          {new URL(participant.guest_origin).hostname}
+                        </a>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {participant.checked_in ? (

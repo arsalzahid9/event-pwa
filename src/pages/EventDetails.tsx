@@ -45,6 +45,7 @@ export default function EventDetails() {
             amount: parseFloat(apiParticipant.amount),
             payment_completed: apiParticipant.payment_status,
             checked_in: apiParticipant.is_checked_in === 1,
+            guest_origin: apiParticipant.guest_origin
           }))
         );
       } catch (err) {
@@ -163,9 +164,6 @@ export default function EventDetails() {
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                   Phone
                 </th>
-                {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Date
-                </th> */}
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                   Tickets
                 </th>
@@ -174,6 +172,9 @@ export default function EventDetails() {
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                   Payment Completed
+                </th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                  Guest Origin
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                   Check-in Status
@@ -207,6 +208,16 @@ export default function EventDetails() {
 
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.payment_completed}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <a 
+                        href={participant.guest_origin} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {new URL(participant.guest_origin).hostname}
+                      </a>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.checked_in ? (
