@@ -301,15 +301,11 @@ export default function AllEventDetail() {
                         )}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">{participant.quantity ?? 0}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{participant.amount}</td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        {participant.payment_status === 'Paid' ? (
-                          <span className="text-green-600">Paid</span>
-                        ) : participant.payment_status === 'Failed' ? (
-                          <span className="text-red-600">Failed</span>
-                        ) : (
-                          <span className="text-yellow-600">Pending</span>
-                        )}
+                        {participant.payment_status?.toLowerCase() === 'paid' ? '****' : participant.amount}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        {participant.payment_status}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {participant.checked_in ? (
