@@ -302,7 +302,8 @@ export default function AllEventDetail() {
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">{participant.quantity ?? 0}</td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        {participant.payment_status?.toLowerCase() === 'paid' ? '****' : participant.amount}
+                        {participant.amount}
+
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {participant.payment_status}
