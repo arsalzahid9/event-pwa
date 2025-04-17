@@ -93,12 +93,12 @@ export default function AllEvent() {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event Name</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Guide Name</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME EVENTO</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME GUIDA</th>
 
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Origin</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Date</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Image</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">ORIGINE</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">DATA</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">IMMAGINE</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">

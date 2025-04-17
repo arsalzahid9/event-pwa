@@ -112,12 +112,12 @@ export const Dashboard = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Participant</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Guide</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Amount</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Booking Date</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME DEL PARTECIPANTE</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">EVENTO</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">GUIDA</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">IMPORTO</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">DATI DI PRENOTAZIONE</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">STATO</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">

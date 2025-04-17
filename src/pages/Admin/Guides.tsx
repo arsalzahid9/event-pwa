@@ -81,11 +81,11 @@ export const Guides = () => {
           <table className="min-w-full">
             <thead>
               <tr className="border-b bg-gray-50">
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Name</th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Email</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">NOME</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">E-MAIL</th>
                 {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Image</th> */}
                 {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Admin</th> */}
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Actions</th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">Azioni</th>
               </tr>
             </thead>
             

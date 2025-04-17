@@ -252,7 +252,7 @@ export default function AllEventDetail() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span>Guide: {event?.guide || 'N/A'}</span>
+                  <span>Guida: {event?.guide || 'N/A'}</span>
                   <button
                     onClick={() => {
                       setIsEditingGuide(true);
@@ -279,14 +279,14 @@ export default function AllEventDetail() {
             <table className="min-w-full">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Name</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Email</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Phone</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Quantity</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Amount</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Status</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Origin</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Check-in</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">NOME</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">E-MAIL</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">TELEFONO</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">QUANTITà</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">IMPORTO</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">STATO</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">ORIGINE</th>
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">REGISTRAZIONE</th>
                   {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Actions</th> */}
                 </tr>
               </thead>

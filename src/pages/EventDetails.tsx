@@ -159,28 +159,28 @@ export default function EventDetails() {
             <thead>
               <tr className="border-b">
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Name
+                  NOME
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Phone
+                TELEFONO
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Tickets
+                BIGLIETTI
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Amount to Pay
+                IMPORTO DA PAGARE
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Payment Completed
+                PAGAMENTO COMPLETATO
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Guest Origin
+                ORIGINE
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Check-in Status
+                STATO DEL CHECK-IN
                 </th>
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
-                  Check-in
+                REGISTRAZIONE
                 </th>
               </tr>
             </thead>
