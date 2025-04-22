@@ -308,7 +308,13 @@ export default function AllEventDetail() {
                         {participant.payment_status?.toLowerCase() === 'paid' ? '****' :`€${participant.amount}`}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        {participant.payment_status}
+                        {(() => {
+                          const status = participant.payment_status?.toLowerCase();
+                          if (status === 'paid') return 'PAGATO';
+                          if (status === 'offline_pending') return 'NON_PAGATO';
+                          if (status === 'free') return 'GRATIS';
+                          return participant.payment_status;
+                        })()}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         <a 

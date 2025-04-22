@@ -207,7 +207,13 @@ export default function EventDetails() {
                     </td>
 
                     <td className="py-3 px-4 whitespace-nowrap">
-                      {participant.payment_completed}
+                      {(() => {
+                        const status = participant.payment_completed?.toLowerCase();
+                        if (status === 'paid') return 'PAGATO';
+                        if (status === 'offline_pending') return 'NON_PAGATO';
+                        if (status === 'free') return 'GRATIS';
+                        return participant.payment_completed;
+                      })()}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <a 

@@ -131,7 +131,7 @@ export const Dashboard = () => {
                   <td className="px-6 py-4 text-sm">{event.guide_name}</td>
                   <td className="px-6 py-4 text-sm">
                     <div className="font-medium">
-                      {parseFloat(event.amount.replace(/\.(?=.*\.)/g, '')).toFixed(2)}
+                      {`€${parseFloat(event.amount.replace(/\.(?=.*\.)/g, '')).toFixed(2)}`}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm">
@@ -145,7 +145,13 @@ export const Dashboard = () => {
                         ? 'bg-red-100 text-red-800'
                         : 'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {event.payment_status}
+                      {(() => {
+                        const status = event.payment_status?.toLowerCase();
+                        if (status === 'paid') return 'PAGATO';
+                        if (status === 'offline_pending') return 'NON_PAGATO';
+                        if (status === 'free') return 'GRATIS';
+                        return event.payment_status;
+                      })()}
                     </span>
                   </td>
                 </tr>
