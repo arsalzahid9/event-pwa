@@ -47,7 +47,7 @@ export const Dashboard = () => {
       value: statsData?.total_order_amount || 0,
       icon: <Euro className="w-6 h-6" />, 
       color: 'bg-green-100',
-      format: (val: number) => `${val.toFixed(2)}`
+      format: (val: number) => `€${val.toFixed(2)}`
     },
     { 
       title: 'Revenue Share', 

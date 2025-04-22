@@ -203,7 +203,7 @@ export default function EventDetails() {
                       {participant.tickets}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
-                      {participant.payment_completed?.toLowerCase() === 'paid' ? '****' : participant.amount}
+                      {participant.payment_completed?.toLowerCase() === 'paid' ? '****' : `€${participant.amount}`}
                     </td>
 
                     <td className="py-3 px-4 whitespace-nowrap">
