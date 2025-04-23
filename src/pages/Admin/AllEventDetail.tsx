@@ -2,7 +2,8 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 // First, import the X icon from lucide-react
-import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X, UserX, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X, UserX, ExternalLink, Download } from 'lucide-react';
+import { useReactToPrint } from 'react-to-print';
 import { Event, Participant } from '../../types';
 import { getAdminEventDetails } from '../../api/Admin/getAllEventDetail';
 import Loader from '../../components/Loader';
@@ -12,9 +13,62 @@ import { updateEditDetail } from '../../api/Admin/updateEditDetail';
 import { getGuideDropdown } from '../../api/Admin/getGuideDropdown';
 import { getEventDropdown } from '../../api/Admin/getEventDropdown';
 import { updateGuideName } from '../../api/Admin/UpdateGuideName';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function AllEventDetail() {
   // Add this ref near other state declarations
+  const componentRef = useRef<HTMLDivElement>(null);
+  
+  // Add this handler function
+  const handlePrint = async () => {
+    const input = componentRef.current;
+    if (!input) return;
+  
+    try {
+      // Temporarily add CSS to hide no-print elements
+      const style = document.createElement('style');
+      style.innerHTML = `
+        .no-print {
+          display: none !important;
+        }
+      `;
+      document.head.appendChild(style);
+  
+      const canvas = await html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        logging: true,
+        allowTaint: true
+      });
+  
+      // Remove the temporary style
+      document.head.removeChild(style);
+  
+      // Rest of your PDF generation code...
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+  
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+  
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+  
+      pdf.save('event-details.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Add this effect to handle click outside
@@ -162,14 +216,23 @@ export default function AllEventDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <button
-          onClick={() => navigate('/all-events')}
-          className="mb-6 flex items-center text-gray-600 hover:text-gray-800"
-        >
-          <ArrowLeft className="w-5 h-5 mr-1" />
-          Back to Events
-        </button>
+      <div className="bg-white rounded-xl shadow-sm p-6" ref={componentRef}>
+        <div className="flex justify-between items-center mb-6 no-print">
+          <button
+            onClick={() => navigate('/all-events')}
+            className="flex items-center text-gray-600 hover:text-gray-800"
+          >
+            <ArrowLeft className="w-5 h-5 mr-1" />
+            Back to Events
+          </button>
+          <button
+            onClick={handlePrint}
+            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          >
+            <Download className="w-5 h-5 mr-2" />
+            Download PDF
+          </button>
+        </div>
 
         {/* Single column layout with full width */}
         <div className="space-y-6">
@@ -603,4 +666,41 @@ const EditParticipantForm = ({ participantId, closeModal, onUpdate }: EditPartic
       </div>
     </form>
   );
+};
+
+// Replace the handlePrint function with:
+const handlePrint = async () => {
+  const input = componentRef.current;
+  if (!input) return;
+
+  try {
+    const canvas = await html2canvas(input, {
+      scale: 2, // Increase for better quality
+      useCORS: true,
+      logging: true,
+      allowTaint: true,
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save('event-details.pdf');
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+  }
 };

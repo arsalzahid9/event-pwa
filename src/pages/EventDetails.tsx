@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Users, UserX, MapPin, Calendar, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Users, UserX, MapPin, Calendar, ExternalLink, Download } from 'lucide-react';
 import { Event, Participant } from '../types';
 import { getEventDetails } from '../api/Guide/eventDetail';
 import { checkInParticipant } from '../api/Guide/eventCheckin';
-
-// Add import at the top
 import Loader from '../components/Loader';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function EventDetails() {
   const navigate = useNavigate();
@@ -15,6 +15,48 @@ export default function EventDetails() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const componentRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = async () => {
+    const input = document.getElementById('print-content');
+    if (!input) return;
+  
+    try {
+      // Create a temporary style to hide elements we don't want in the PDF
+      const style = document.createElement('style');
+      style.innerHTML = `
+        .no-print {
+          display: none !important;
+        }
+      `;
+      document.head.appendChild(style);
+  
+      const canvas = await html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        logging: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: input.scrollWidth,
+        windowHeight: input.scrollHeight
+      });
+  
+      // Remove the temporary style
+      document.head.removeChild(style);
+  
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save('event-details.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -32,7 +74,7 @@ export default function EventDetails() {
             'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
           participants_count: response.data.length,
           description: 'Event description',
-          event_link: response.event_data.event_link || null // Add this line
+          event_link: response.event_data.event_link || null
         });
 
         setParticipants(
@@ -92,7 +134,7 @@ export default function EventDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="relative">
+      <div className="relative no-print" ref={componentRef}>
         <img
           src={event.image_url}
           alt={event.title}
@@ -100,40 +142,38 @@ export default function EventDetails() {
         />
         <button
           onClick={() => navigate('/events')}
-          className="absolute top-4 left-4 bg-white p-2 rounded-full shadow-md"
+          className="absolute top-4 left-4 bg-white p-2 rounded-full shadow-md no-print"
         >
           <ArrowLeft size={20} />
         </button>
       </div>
 
-      <div className="p-4">
+      <div id="print-content" className="p-4">
         <div className="flex flex-col mb-6">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center pl-2 gap-3 md:gap-0">
             <div className="flex items-center">
-              {/* <Calendar size={20}  className="text-gray-600 mr-2" /> */}
-              <div className="flex items-center">
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                  {event.title}
-                  {event.event_link && (
-                    <a
-                      href={event.event_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800"
-                      title="View event page"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                    </a>
-                  )}
-                </h1>
-              </div>
+              <h1 className="text-2xl font-bold flex items-center gap-2">
+                {event.title}
+                {event.event_link && (
+                  <a
+                    href={event.event_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800"
+                    title="View event page"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                  </a>
+                )}
+              </h1>
+              <button
+                onClick={handlePrint}
+                className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ml-4 no-print"
+              >
+                <Download className="w-5 h-5 mr-2 no-print" />
+                Download PDF
+              </button>
             </div>
-            {/* <div className="flex items-center bg-gray-100 px-3 py-1 rounded-full self-start md:self-auto">
-              <Users size={18} className="text-gray-600" />
-              <span className="ml-1 text-gray-600">
-                {event.participants_count}
-              </span>
-            </div> */}
           </div>
           <div className="flex items-center pl-2 mt-1">
             <MapPin size={16} className="text-gray-600 mr-2" />
