@@ -21,53 +21,106 @@ export default function AllEventDetail() {
   const componentRef = useRef<HTMLDivElement>(null);
   
   // Add this handler function
-  const handlePrint = async () => {
-    const input = componentRef.current;
-    if (!input) return;
+  const handlePrint = () => {
+    const printContent = componentRef.current;
+    if (!printContent) return;
   
-    try {
-      // Temporarily add CSS to hide no-print elements
-      const style = document.createElement('style');
-      style.innerHTML = `
-        .no-print {
-          display: none !important;
-        }
-      `;
-      document.head.appendChild(style);
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
   
-      const canvas = await html2canvas(input, {
-        scale: 2,
-        useCORS: true,
-        logging: true,
-        allowTaint: true
-      });
+    // Get the HTML content and add print-specific styles
+    const content = printContent.innerHTML;
+    
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${event?.title || 'Event Details'}</title>
+          <style>
+            * {
+              box-sizing: border-box;
+              font-family: Arial, sans-serif;
+            }
+            body {
+              margin: 0;
+              padding: 20px;
+              color: #333;
+            }
+            h1 {
+              font-size: 24px;
+              margin-bottom: 10px;
+            }
+            .event-info {
+              margin-bottom: 20px;
+            }
+            .event-info div {
+              margin-bottom: 5px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+              font-size: 14px;
+            }
+            th, td {
+              padding: 10px 12px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            }
+            th {
+              background-color: #f8f9fa;
+              font-weight: bold;
+            }
+            tr:nth-child(even) {
+              background-color: #f9f9f9;
+            }
+            .status-paid {
+              color: green;
+            }
+            .status-pending {
+              color: orange;
+            }
+            .status-failed {
+              color: red;
+            }
+            @page {
+              size: auto;
+              margin: 10mm;
+            }
+            @media print {
+              body {
+                padding: 0;
+              }
+              .no-print {
+                display: none !important;
+              }
+              table {
+                page-break-inside: auto;
+              }
+              tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+              }
+            }
+          </style>
+        </head>
+        <body>
+    
+          ${content}
+        </body>
+      </html>
+    `);
   
-      // Remove the temporary style
-      document.head.removeChild(style);
-  
-      // Rest of your PDF generation code...
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-  
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-  
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-  
-      pdf.save('event-details.pdf');
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    }
+    printWindow.document.close();
+    
+    // Ensure fonts are loaded before printing
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        // Don't close immediately to allow print preview
+        setTimeout(() => printWindow.close(), 1000);
+      }, 500);
+    };
   };
   const dropdownRef = useRef<HTMLDivElement>(null);
 

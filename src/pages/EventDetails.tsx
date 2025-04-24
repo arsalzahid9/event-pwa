@@ -17,47 +17,66 @@ export default function EventDetails() {
   const [error, setError] = useState('');
   const componentRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = async () => {
-    const input = document.getElementById('print-content');
-    if (!input) return;
-  
-    try {
-      // Create a temporary style to hide elements we don't want in the PDF
-      const style = document.createElement('style');
-      style.innerHTML = `
-        .no-print {
-          display: none !important;
-        }
-      `;
-      document.head.appendChild(style);
-  
-      const canvas = await html2canvas(input, {
-        scale: 2,
-        useCORS: true,
-        logging: true,
-        allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: input.scrollWidth,
-        windowHeight: input.scrollHeight
-      });
-  
-      // Remove the temporary style
-      document.head.removeChild(style);
-  
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save('event-details.pdf');
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    }
-  };
+  const handlePrint = () => {
+    const printContent = document.getElementById('print-content');
+    if (!printContent) return;
 
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    // Write the content to the new window
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${event?.title || 'Event Details'}</title>
+          <style>
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              .print-content, .print-content * {
+                visibility: visible;
+              }
+              .print-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+              }
+              .no-print {
+                display: none !important;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              th, td {
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+              }
+              th {
+                background-color: #f2f2f2;
+                text-align: left;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-content">${printContent.innerHTML}</div>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Wait for content to load before printing
+    setTimeout(() => {
+      printWindow.print();
+      // Don't close immediately to allow user to see print dialog
+    }, 500);
+  };
   useEffect(() => {
     const fetchEventData = async () => {
       try {
