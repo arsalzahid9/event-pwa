@@ -30,34 +30,70 @@ export default function EventDetails() {
       <html>
         <head>
           <title>${event?.title || 'Event Details'}</title>
-          <style>
+         <style>
+            * {
+              box-sizing: border-box;
+              font-family: Arial, sans-serif;
+            }
+            body {
+              margin: 0;
+              padding: 20px;
+              color: #333;
+            }
+            h1 {
+              font-size: 24px;
+              margin-bottom: 10px;
+            }
+            .event-info {
+              margin-bottom: 20px;
+            }
+            .event-info div {
+              margin-bottom: 5px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+              font-size: 14px;
+            }
+            th, td {
+              padding: 10px 12px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            }
+            th {
+              background-color: #f8f9fa;
+              font-weight: bold;
+            }
+            tr:nth-child(even) {
+              background-color: #f9f9f9;
+            }
+            .status-paid {
+              color: green;
+            }
+            .status-pending {
+              color: orange;
+            }
+            .status-failed {
+              color: red;
+            }
+            @page {
+              size: auto;
+              margin: 10mm;
+            }
             @media print {
-              body * {
-                visibility: hidden;
-              }
-              .print-content, .print-content * {
-                visibility: visible;
-              }
-              .print-content {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
+              body {
+                padding: 0;
               }
               .no-print {
                 display: none !important;
               }
               table {
-                width: 100%;
-                border-collapse: collapse;
+                page-break-inside: auto;
               }
-              th, td {
-                padding: 8px 12px;
-                border: 1px solid #ddd;
-              }
-              th {
-                background-color: #f2f2f2;
-                text-align: left;
+              tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
               }
             }
           </style>
