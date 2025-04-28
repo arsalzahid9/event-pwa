@@ -202,9 +202,7 @@ export default function AllEventDetail() {
       setEvent({
         id: response.data.event_data.id.toString(),
         title: response.data.event_data.name,
-        date: response.data.event_data.created_at
-          ? new Date(response.data.event_data.created_at).toLocaleDateString()
-          : 'N/A',
+        date: response.data.event_data.event_date,
         location: response.data.event_data.origin,
         image_url:
           response.data.event_data.image ||
@@ -317,7 +315,7 @@ export default function AllEventDetail() {
             </div>
             <div className="flex items-center text-gray-600">
               <Calendar className="w-5 h-5 mr-2" />
-              <span>Created at: {event?.date}</span>
+              <span>Event Starting Date: {event?.date}</span>
             </div>
             <div className="flex items-center text-gray-600">
               <Users className="w-5 h-5 mr-2" />

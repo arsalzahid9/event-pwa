@@ -32,9 +32,9 @@ export default function AllEvent() {
         response.data.map((apiEvent: any) => ({
           id: apiEvent.id.toString(),
           title: apiEvent.name,
-          date: apiEvent.event_date
-            ? new Date(apiEvent.event_date).toLocaleDateString()
-            : 'N/A',
+          date: apiEvent.event_date,
+            // ? new Date(apiEvent.event_date).toLocaleDateString()
+            // : 'N/A',
           location: apiEvent.origin,
           image_url: apiEvent.image || 'https://images.unsplash.com/photo-1513581166391-887a96ddeafd',
           guide_names: apiEvent.guide_names || 'N/A',
