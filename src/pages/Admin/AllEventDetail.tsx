@@ -433,14 +433,24 @@ export default function AllEventDetail() {
                         })()}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <a 
-                          href={participant.guest_origin} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 hover:underline"
-                        >
-                          {new URL(participant.guest_origin).hostname}
-                        </a>
+                        {participant.guest_origin && participant.guest_origin.startsWith('http') ? (
+                          <a 
+                            href={participant.guest_origin} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            {(() => {
+                              try {
+                                return new URL(participant.guest_origin).hostname;
+                              } catch {
+                                return participant.guest_origin;
+                              }
+                            })()}
+                          </a>
+                        ) : (
+                          participant.guest_origin || 'N/A'
+                        )}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {participant.checked_in ? (
