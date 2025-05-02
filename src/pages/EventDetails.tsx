@@ -268,9 +268,9 @@ export default function EventDetails() {
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                 PAGAMENTO COMPLETATO
                 </th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                 ORIGINE
-                </th>
+                </th> */}
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                 STATO DEL CHECK-IN
                 </th>
@@ -288,7 +288,7 @@ export default function EventDetails() {
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.phone ? (
-                        <a href={`tel:${participant.phone}`}>{participant.phone}</a>
+                        <a href={`tel:${participant.phone}`} className="font-bold underline">{participant.phone}</a>
                       ) : (
                         <span className="text-gray-400">N/A</span>
                       )}
@@ -310,7 +310,7 @@ export default function EventDetails() {
                         return participant.payment_completed;
                       })()}
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    {/* <td className="py-3 px-4 whitespace-nowrap">
                       <a 
                         href={participant.guest_origin} 
                         target="_blank" 
@@ -319,7 +319,7 @@ export default function EventDetails() {
                       >
                         {new URL(participant.guest_origin).hostname}
                       </a>
-                    </td>
+                    </td> */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       {participant.checked_in ? (
                         <span className="text-green-600">Checked In</span>

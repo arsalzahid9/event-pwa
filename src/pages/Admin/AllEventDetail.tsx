@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 // First, import the X icon from lucide-react
-import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X, UserX, ExternalLink, Download } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Edit, Plus, Check, X, UserX, ExternalLink, Download, Trash } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { Event, Participant } from '../../types';
 import { getAdminEventDetails } from '../../api/Admin/getAllEventDetail';
@@ -13,25 +13,31 @@ import { updateEditDetail } from '../../api/Admin/updateEditDetail';
 import { getGuideDropdown } from '../../api/Admin/getGuideDropdown';
 import { getEventDropdown } from '../../api/Admin/getEventDropdown';
 import { updateGuideName } from '../../api/Admin/UpdateGuideName';
+import { deleteParticipant } from '../../api/Admin/deleteParticipant';
+
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 export default function AllEventDetail() {
   // Add this ref near other state declarations
   const componentRef = useRef<HTMLDivElement>(null);
-  
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
   // Add this handler function
   const handlePrint = () => {
     const printContent = componentRef.current;
     if (!printContent) return;
-  
+
     // Create a new window for printing
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-  
+
     // Get the HTML content and add print-specific styles
     const content = printContent.innerHTML;
-    
+
     printWindow.document.write(`
       <html>
         <head>
@@ -110,9 +116,9 @@ export default function AllEventDetail() {
         </body>
       </html>
     `);
-  
+
     printWindow.document.close();
-    
+
     // Ensure fonts are loaded before printing
     printWindow.onload = () => {
       setTimeout(() => {
@@ -264,6 +270,33 @@ export default function AllEventDetail() {
     setIsEditModalOpen(false);
     setSelectedParticipant(null);
   };
+  const openDeleteModal = (participant: Participant) => {
+    setParticipantToDelete(participant);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setParticipantToDelete(null);
+    setDeleteError('');
+  };
+
+  const handleDeleteParticipant = async () => {
+    if (!participantToDelete) return;
+
+    setDeleteLoading(true);
+    setDeleteError('');
+
+    try {
+      await deleteParticipant(participantToDelete.id);
+      closeDeleteModal();
+      fetchEventData(); // Refresh data after deletion
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete participant');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -401,7 +434,7 @@ export default function AllEventDetail() {
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">STATO</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">ORIGINE</th>
                   <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">REGISTRAZIONE</th>
-                  {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Actions</th> */}
+                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -414,12 +447,12 @@ export default function AllEventDetail() {
                         {participant.phone.startsWith('Invalid') || participant.phone === 'N/A' ? (
                           participant.phone
                         ) : (
-                          <a href={`tel:${participant.phone}`}>{participant.phone}</a>
+                          <a href={`tel:${participant.phone}`} className="font-bold underline">{participant.phone}</a>
                         )}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">{participant.quantity ?? 0}</td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        {participant.payment_status?.toLowerCase() === 'paid' ? '****' :`€${participant.amount}`}
+                        {participant.payment_status?.toLowerCase() === 'paid' ? '****' : `€${participant.amount}`}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {(() => {
@@ -432,9 +465,9 @@ export default function AllEventDetail() {
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {participant.guest_origin && participant.guest_origin.startsWith('http') ? (
-                          <a 
-                            href={participant.guest_origin} 
-                            target="_blank" 
+                          <a
+                            href={participant.guest_origin}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:text-blue-800 hover:underline"
                           >
@@ -457,11 +490,21 @@ export default function AllEventDetail() {
                           <X className="w-4 h-4 text-red-500" />
                         )}
                       </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => openDeleteModal(participant)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="text-center py-12">
+                    <td colSpan={9} className="text-center py-12">
                       <div className="flex flex-col items-center justify-center">
                         <UserX size={48} className="text-gray-300 mb-3" />
                         <p className="text-lg font-medium text-gray-600 mb-1">No Participants Found</p>
@@ -497,6 +540,67 @@ export default function AllEventDetail() {
                 onUpdate={fetchEventData}  // callback to refresh details after update
               />
             )}
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+      {/* Delete Confirmation Modal */}
+      <Dialog
+        open={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-red-100 p-2 rounded-full">
+                <Trash className="w-6 h-6 text-red-600" />
+              </div>
+              <Dialog.Title className="text-xl font-medium text-gray-900">
+                Delete Participant
+              </Dialog.Title>
+            </div>
+            <div className="space-y-4">
+              <p className="text-gray-600">
+                Are you sure you want to delete participant <span className="font-semibold text-gray-900">{participantToDelete?.name}</span>?
+                This action cannot be undone.
+              </p>
+
+              {deleteError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-red-600 text-sm">{deleteError}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={closeDeleteModal}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                  disabled={deleteLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteParticipant}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+                >
+                  {deleteLoading ? (
+                    <>
+                      <span className="animate-spin h-4 w-4 border-t-2 border-white rounded-full" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash className="w-4 h-4" />
+                      Delete Participant
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </Dialog.Panel>
         </div>
       </Dialog>

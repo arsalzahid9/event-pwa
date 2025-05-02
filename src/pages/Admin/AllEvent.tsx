@@ -7,7 +7,9 @@ import Loader from '../../components/Loader';
 import { useNavigate } from 'react-router-dom';
 import { Pagination } from '@mui/material';
 import debounce from 'lodash.debounce';
-import { Calendar } from 'lucide-react'; // Add this import
+import { Calendar, Plus, Check, X } from 'lucide-react'; // Add Plus, Check, X icons
+import { getGuideDropdown } from '../../api/Admin/getGuideDropdown';
+import { updateGuideName } from '../../api/Admin/UpdateGuideName';
 
 export default function AllEvent() {
   const navigate = useNavigate();
@@ -22,6 +24,14 @@ export default function AllEvent() {
     total: 0,
     last_page: 1,
   });
+
+  // Move these hooks to the top, before any logic or return
+  const [openDropdownEventId, setOpenDropdownEventId] = useState<string | null>(null);
+  const [guideOptions, setGuideOptions] = useState<Array<{ id: number, name: string }>>([]);
+  const [guideSearch, setGuideSearch] = useState('');
+  const [selectedGuideId, setSelectedGuideId] = useState<number | null>(null);
+  const [dropdownLoading, setDropdownLoading] = useState(false);
+  const [dropdownError, setDropdownError] = useState('');
 
   const fetchEvents = async () => {
     try {
@@ -53,21 +63,50 @@ export default function AllEvent() {
       setLoading(false);
     }
   };
+  
 
   // Handle debounce for search
   const debouncedSearchHandler = debounce((value: string) => {
     setPagination((prev) => ({ ...prev, current_page: 1 }));
     setDebouncedSearch(value);
   }, 500);
+  
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     debouncedSearchHandler(e.target.value);
   };
+  
 
   useEffect(() => {
     fetchEvents();
   }, [pagination.current_page, debouncedSearch]);
+  
+  useEffect(() => {
+    if (openDropdownEventId !== null) {
+      setDropdownLoading(true);
+      getGuideDropdown(guideSearch)
+        .then((response) => setGuideOptions(response.data))
+        .catch((err) => setDropdownError(err.message || 'Failed to load guides'))
+        .finally(() => setDropdownLoading(false));
+    }
+  }, [openDropdownEventId, guideSearch]);
+  const handleGuideUpdate = async (eventId: string) => {
+    if (!selectedGuideId) return;
+    setDropdownLoading(true);
+    setDropdownError('');
+    try {
+      await updateGuideName(eventId, selectedGuideId);
+      setOpenDropdownEventId(null);
+      setSelectedGuideId(null);
+      setGuideSearch('');
+      fetchEvents(); // Refresh events to show updated guide
+    } catch (err) {
+      setDropdownError(err instanceof Error ? err.message : 'Failed to update guide');
+    } finally {
+      setDropdownLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -95,7 +134,6 @@ export default function AllEvent() {
                   <tr>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME EVENTO</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME GUIDA</th>
-
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">ORIGINE</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">DATA</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">IMMAGINE</th>
@@ -110,14 +148,77 @@ export default function AllEvent() {
                         onClick={() => navigate(`/all-events/${event.id}`)}
                       >
                         <td className="px-6 py-4 text-sm font-medium">{event.title}</td>
-                        <td className="px-6 py-4 text-sm">{event.guide_names}</td>
+                        <td className="px-6 py-4 text-sm relative" onClick={e => e.stopPropagation()}>
+                          <div className="flex items-center gap-2">
+                            <span>{event.guide_names}</span>
+                            <button
+                              className="text-blue-600 hover:text-blue-800"
+                              onClick={() => {
+                                setOpenDropdownEventId(event.id);
+                                setGuideSearch('');
+                                setSelectedGuideId(null);
+                                setDropdownError('');
+                              }}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                          {openDropdownEventId === event.id && (
+                            <div className="absolute z-10 mt-2 w-56 bg-white shadow-lg rounded-md p-3 border border-gray-200">
+                              <div className="flex items-center mb-2">
+                                <input
+                                  type="text"
+                                  value={guideSearch}
+                                  onChange={e => setGuideSearch(e.target.value)}
+                                  placeholder="Search guide..."
+                                  className="w-full px-2 py-1 border rounded text-sm"
+                                />
+                                <button
+                                  className="ml-2 text-gray-500 hover:text-gray-700"
+                                  onClick={() => setOpenDropdownEventId(null)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                              {dropdownLoading ? (
+                                <div className="text-xs text-gray-500 py-2">Loading...</div>
+                              ) : dropdownError ? (
+                                <div className="text-xs text-red-500 py-2">{dropdownError}</div>
+                              ) : (
+                                <div className="max-h-40 overflow-y-auto">
+                                  {guideOptions.length > 0 ? (
+                                    guideOptions.map(guide => (
+                                      <div
+                                        key={guide.id}
+                                        className={`px-2 py-1 cursor-pointer hover:bg-blue-50 rounded ${selectedGuideId === guide.id ? 'bg-blue-100' : ''}`}
+                                        onClick={() => setSelectedGuideId(guide.id)}
+                                      >
+                                        {guide.name}
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <div className="text-xs text-gray-400 py-2">No guides found</div>
+                                  )}
+                                </div>
+                              )}
+                              <button
+                                className="mt-2 w-full flex items-center justify-center bg-blue-600 text-white py-1 rounded disabled:bg-gray-300"
+                                disabled={!selectedGuideId || dropdownLoading}
+                                onClick={() => handleGuideUpdate(event.id)}
+                              >
+                                <Check className="w-4 h-4 mr-1" />
+                                Assign Guide
+                              </button>
+                            </div>
+                          )}
+                        </td>
                         <td className="px-6 py-4 text-sm">
-                          <a 
+                          <a
                             href={event.location}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:text-blue-800 hover:underline"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={e => e.stopPropagation()}
                           >
                             {event.location}
                           </a>
@@ -185,4 +286,25 @@ export default function AllEvent() {
       )}
     </div>
   );
+
+  // Fetch guide options when dropdown is opened or search changes
+
+
+  // Place handleGuideUpdate here, before return
+  // const handleGuideUpdate = async (eventId: string) => {
+  //   if (!selectedGuideId) return;
+  //   setDropdownLoading(true);
+  //   setDropdownError('');
+  //   try {
+  //     await updateGuideName(eventId, selectedGuideId);
+  //     setOpenDropdownEventId(null);
+  //     setSelectedGuideId(null);
+  //     setGuideSearch('');
+  //     fetchEvents(); // Refresh events to show updated guide
+  //   } catch (err) {
+  //     setDropdownError(err instanceof Error ? err.message : 'Failed to update guide');
+  //   } finally {
+  //     setDropdownLoading(false);
+  //   }
+  // };
 }
