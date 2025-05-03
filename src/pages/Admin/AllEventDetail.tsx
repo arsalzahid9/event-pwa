@@ -31,102 +31,122 @@ export default function AllEventDetail() {
     const printContent = componentRef.current;
     if (!printContent) return;
 
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+    // Show loading state on button
+    const button = document.activeElement;
+    const originalButtonText = button instanceof HTMLElement ? button.innerHTML : '';
+    if (button instanceof HTMLElement) {
+      button.innerHTML = '<span class="animate-spin h-4 w-4 mr-2 border-t-2 border-white rounded-full"></span> Generating PDF...';
+      button.disabled = true;
+    }
 
-    // Get the HTML content and add print-specific styles
-    const content = printContent.innerHTML;
-
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>${event?.title || 'Event Details'}</title>
-          <style>
-            * {
-              box-sizing: border-box;
-              font-family: Arial, sans-serif;
-            }
-            body {
-              margin: 0;
-              padding: 20px;
-              color: #333;
-            }
-            h1 {
-              font-size: 24px;
-              margin-bottom: 10px;
-            }
-            .event-info {
-              margin-bottom: 20px;
-            }
-            .event-info div {
-              margin-bottom: 5px;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-top: 20px;
-              font-size: 14px;
-            }
-            th, td {
-              padding: 10px 12px;
-              text-align: left;
-              border-bottom: 1px solid #ddd;
-            }
-            th {
-              background-color: #f8f9fa;
-              font-weight: bold;
-            }
-            tr:nth-child(even) {
-              background-color: #f9f9f9;
-            }
-            .status-paid {
-              color: green;
-            }
-            .status-pending {
-              color: orange;
-            }
-            .status-failed {
-              color: red;
-            }
-            @page {
-              size: auto;
-              margin: 10mm;
-            }
-            @media print {
-              body {
-                padding: 0;
-              }
-              .no-print {
-                display: none !important;
-              }
-              table {
-                page-break-inside: auto;
-              }
-              tr {
-                page-break-inside: avoid;
-                page-break-after: auto;
-              }
-            }
-          </style>
-        </head>
-        <body>
+    // Save original styles and modify for capturing
+    const originalStyle = printContent.style.cssText;
+    const originalOverflow = document.body.style.overflow;
     
-          ${content}
-        </body>
-      </html>
-    `);
+    // Temporarily modify styles to ensure all content is rendered
+    printContent.style.overflow = 'visible';
+    printContent.style.height = 'auto';
+    printContent.style.position = 'absolute';
+    printContent.style.top = '0';
+    printContent.style.left = '0';
+    printContent.style.width = '1200px'; // Fixed width for better rendering
+    document.body.style.overflow = 'visible';
+    
+    // Hide elements with no-print class
+    const noPrintElements = printContent.querySelectorAll('.no-print');
+    noPrintElements.forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.style.display = 'none';
+      }
+    });
 
-    printWindow.document.close();
-
-    // Ensure fonts are loaded before printing
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.print();
-        // Don't close immediately to allow print preview
-        setTimeout(() => printWindow.close(), 1000);
-      }, 500);
-    };
+    // Use html2canvas with improved settings
+    html2canvas(printContent, {
+      scale: 2, // Higher scale for better quality
+      useCORS: true, // Enable CORS for images
+      logging: false,
+      backgroundColor: '#ffffff',
+      windowWidth: 1200,
+      windowHeight: 1600,
+      scrollX: 0,
+      scrollY: 0,
+      width: printContent.scrollWidth,
+      height: printContent.scrollHeight,
+      onclone: (clonedDoc) => {
+        // Further modifications to the cloned document if needed
+        const clonedContent = clonedDoc.querySelector('[ref="componentRef"]');
+        if (clonedContent instanceof HTMLElement) {
+          clonedContent.style.width = '1200px';
+        }
+      }
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Initialize jsPDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Calculate dimensions to fit content properly
+      const imgWidth = 210; // A4 width in mm (210mm)
+      const pageHeight = 297; // A4 height in mm (297mm)
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      // Add image to PDF
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      
+      // If content is taller than one page, add additional pages
+      let heightLeft = imgHeight - pageHeight;
+      let position = -pageHeight;
+      
+      while (heightLeft > 0) {
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        position -= pageHeight;
+      }
+      
+      // Save the PDF with a meaningful filename
+      pdf.save(`${event?.title || 'Event'}_Details.pdf`);
+      
+      // Reset button state
+      if (button instanceof HTMLElement) {
+        button.innerHTML = originalButtonText;
+        button.disabled = false;
+      }
+      
+      // Restore original styles
+      printContent.style.cssText = originalStyle;
+      document.body.style.overflow = originalOverflow;
+      
+      // Show elements with no-print class again
+      noPrintElements.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.display = '';
+        }
+      });
+    }).catch(error => {
+      console.error('Error generating PDF:', error);
+      
+      // Reset button state on error
+      if (button instanceof HTMLElement) {
+        button.innerHTML = originalButtonText;
+        button.disabled = false;
+      }
+      
+      // Restore original styles on error
+      printContent.style.cssText = originalStyle;
+      document.body.style.overflow = originalOverflow;
+      
+      // Show elements with no-print class again on error
+      noPrintElements.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.display = '';
+        }
+      });
+    });
   };
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -407,9 +427,9 @@ export default function AllEventDetail() {
                       setGuideSearch('');
                       setUpdateGuideError('');
                     }}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-800 no-print"
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="w-4 h-4 no-print" />
                   </button>
                 </div>
               )}
