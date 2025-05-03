@@ -282,9 +282,9 @@ export default function EventDetails() {
                 {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                 ORIGINE
                 </th> */}
-                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                {/* <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                 STATO DEL CHECK-IN
-                </th>
+                </th> */}
                 <th className="py-3 px-4 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                 REGISTRAZIONE
                 </th>
@@ -331,13 +331,13 @@ export default function EventDetails() {
                         {new URL(participant.guest_origin).hostname}
                       </a>
                     </td> */}
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    {/* <td className="py-3 px-4 whitespace-nowrap">
                       {participant.checked_in ? (
                         <span className="text-green-600">Checked In</span>
                       ) : (
                         <span className="text-red-600">Pending</span>
                       )}
-                    </td>
+                    </td> */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
