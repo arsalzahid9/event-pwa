@@ -109,80 +109,7 @@ export default function AllEventDetail() {
         });
       });
   
-      // Special handling for iOS devices
-      if (isIOS()) {
-        // Create a Blob URL approach that works better for iOS
-        const htmlContent = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>${event?.title || 'Event Details'}</title>
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style>
-                body { 
-                  margin: 0; 
-                  padding: 20px; 
-                  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-                }
-                h1, h2, h3 {
-                  color: #2d3748;
-                }
-                table {
-                  width: 100%;
-                  border-collapse: collapse;
-                  margin: 15px 0;
-                  font-size: 0.9em;
-                }
-                th {
-                  background-color: #f8f9fa;
-                  padding: 8px;
-                  text-align: left;
-                  border-bottom: 1px solid #dee2e6;
-                }
-                td {
-                  padding: 8px;
-                  border-bottom: 1px solid #dee2e6;
-                }
-                tr:nth-child(even) {
-                  background-color: #f8f9fa;
-                }
-                img { 
-                  max-width: 100%; 
-                }
-              </style>
-            </head>
-            <body>
-              ${contentClone.innerHTML}
-            </body>
-          </html>
-        `;
-        
-        // Create a Blob and download it directly
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        
-        // Create a temporary link to download the HTML
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${event?.title || 'event'}_details.html`;
-        
-        // For iOS, we need to actually click the link
-        document.body.appendChild(link);
-        link.click();
-        
-        // Clean up
-        setTimeout(() => {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          document.body.removeChild(contentClone);
-        }, 100);
-        
-        // Show iOS-specific instructions
-        alert('For best results on iOS:\n1. Open the downloaded HTML file\n2. Tap the Share button\n3. Select "Print"\n4. In the print preview, pinch to zoom out\n5. Tap "Share" again\n6. Choose "Save to Files" as PDF');
-        return;
-      }
-  
-      // Standard method for non-iOS devices
+      // Generate PDF for all devices
       const canvas = await html2canvas(contentClone, {
         scale: 2,
         useCORS: true,
@@ -233,8 +160,37 @@ export default function AllEventDetail() {
         position -= pageHeight;
       }
       
-      // Save the PDF
-      pdf.save(`${event?.title || 'Event'}_Details.pdf`);
+      // Special handling for iOS
+      if (isIOS()) {
+        // Convert PDF to Blob and create download link
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        
+        // Create a temporary link to download the PDF
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = `${event?.title || 'Event'}_Details.pdf`;
+        
+        // For iOS, we need to actually click the link
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(pdfUrl);
+        }, 100);
+        
+        // Show iOS-specific instructions if the download doesn't work automatically
+        setTimeout(() => {
+          if (!navigator.userAgent.includes('CriOS')) { // Not Chrome on iOS
+            alert('If the download didn\'t start automatically:\n1. Tap the Share button\n2. Select "Save to Files"');
+          }
+        }, 500);
+      } else {
+        // Standard download for non-iOS devices
+        pdf.save(`${event?.title || 'Event'}_Details.pdf`);
+      }
       
     } catch (error) {
       console.error('PDF generation failed:', error);
