@@ -27,126 +27,253 @@ export default function AllEventDetail() {
   const [deleteError, setDeleteError] = useState('');
 
   // Add this handler function
-  const handlePrint = () => {
+  const isIOS = () => {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  };
+  
+  const isSafari = () => {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  };
+  
+  const handlePrint = async () => {
     const printContent = componentRef.current;
     if (!printContent) return;
-
+  
     // Show loading state on button
-    const button = document.activeElement;
-    const originalButtonText = button instanceof HTMLElement ? button.innerHTML : '';
-    if (button instanceof HTMLElement) {
+    const button = document.activeElement as HTMLElement | null;
+    const originalButtonText = button?.innerHTML || '';
+    
+    if (button) {
       button.innerHTML = '<span class="animate-spin h-4 w-4 mr-2 border-t-2 border-white rounded-full"></span> Generating PDF...';
       button.disabled = true;
     }
-
+  
     // Save original styles and modify for capturing
     const originalStyle = printContent.style.cssText;
     const originalOverflow = document.body.style.overflow;
     
-    // Temporarily modify styles to ensure all content is rendered
-    printContent.style.overflow = 'visible';
-    printContent.style.height = 'auto';
-    printContent.style.position = 'absolute';
-    printContent.style.top = '0';
-    printContent.style.left = '0';
-    printContent.style.width = '1200px'; // Fixed width for better rendering
-    document.body.style.overflow = 'visible';
-    
-    // Hide elements with no-print class
-    const noPrintElements = printContent.querySelectorAll('.no-print');
-    noPrintElements.forEach((el) => {
-      if (el instanceof HTMLElement) {
-        el.style.display = 'none';
-      }
-    });
-
-    // Use html2canvas with improved settings
-    html2canvas(printContent, {
-      scale: 2, // Higher scale for better quality
-      useCORS: true, // Enable CORS for images
-      logging: false,
-      backgroundColor: '#ffffff',
-      windowWidth: 1200,
-      windowHeight: 1600,
-      scrollX: 0,
-      scrollY: 0,
-      width: printContent.scrollWidth,
-      height: printContent.scrollHeight,
-      onclone: (clonedDoc) => {
-        // Further modifications to the cloned document if needed
-        const clonedContent = clonedDoc.querySelector('[ref="componentRef"]');
-        if (clonedContent instanceof HTMLElement) {
-          clonedContent.style.width = '1200px';
-        }
-      }
-    }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
+    try {
+      // Clone the content to avoid modifying the original
+      const contentClone = printContent.cloneNode(true) as HTMLElement;
+      document.body.appendChild(contentClone);
       
-      // Initialize jsPDF
+      // Apply print styles
+      contentClone.style.position = 'absolute';
+      contentClone.style.top = '0';
+      contentClone.style.left = '0';
+      contentClone.style.width = '1200px';
+      contentClone.style.padding = '20px';
+      contentClone.style.boxSizing = 'border-box';
+      contentClone.style.backgroundColor = 'white';
+      contentClone.style.zIndex = '9999';
+      document.body.style.overflow = 'visible';
+      
+      // Hide elements with no-print class
+      const noPrintElements = contentClone.querySelectorAll('.no-print');
+      noPrintElements.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.display = 'none';
+        }
+      });
+  
+      // Enhance table styling for PDF
+      const tables = contentClone.querySelectorAll('table');
+      tables.forEach(table => {
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.fontFamily = 'Arial, sans-serif';
+        
+        // Style table headers
+        const headers = table.querySelectorAll('th');
+        headers.forEach(header => {
+          header.style.backgroundColor = '#f8f9fa';
+          header.style.padding = '8px';
+          header.style.textAlign = 'left';
+          header.style.borderBottom = '1px solid #dee2e6';
+        });
+        
+        // Style table cells
+        const cells = table.querySelectorAll('td');
+        cells.forEach(cell => {
+          cell.style.padding = '8px';
+          cell.style.borderBottom = '1px solid #dee2e6';
+        });
+        
+        // Style alternating rows
+        const rows = table.querySelectorAll('tr');
+        rows.forEach((row, index) => {
+          if (index % 2 === 0) {
+            row.style.backgroundColor = '#f8f9fa';
+          }
+        });
+      });
+  
+      // Special handling for iOS devices
+      if (isIOS()) {
+        // Create a Blob URL approach that works better for iOS
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>${event?.title || 'Event Details'}</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body { 
+                  margin: 0; 
+                  padding: 20px; 
+                  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                }
+                h1, h2, h3 {
+                  color: #2d3748;
+                }
+                table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin: 15px 0;
+                  font-size: 0.9em;
+                }
+                th {
+                  background-color: #f8f9fa;
+                  padding: 8px;
+                  text-align: left;
+                  border-bottom: 1px solid #dee2e6;
+                }
+                td {
+                  padding: 8px;
+                  border-bottom: 1px solid #dee2e6;
+                }
+                tr:nth-child(even) {
+                  background-color: #f8f9fa;
+                }
+                img { 
+                  max-width: 100%; 
+                }
+              </style>
+            </head>
+            <body>
+              ${contentClone.innerHTML}
+            </body>
+          </html>
+        `;
+        
+        // Create a Blob and download it directly
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+        // Create a temporary link to download the HTML
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${event?.title || 'event'}_details.html`;
+        
+        // For iOS, we need to actually click the link
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          document.body.removeChild(contentClone);
+        }, 100);
+        
+        // Show iOS-specific instructions
+        alert('For best results on iOS:\n1. Open the downloaded HTML file\n2. Tap the Share button\n3. Select "Print"\n4. In the print preview, pinch to zoom out\n5. Tap "Share" again\n6. Choose "Save to Files" as PDF');
+        return;
+      }
+  
+      // Standard method for non-iOS devices
+      const canvas = await html2canvas(contentClone, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: 1200,
+        windowHeight: 1600,
+        scrollX: 0,
+        scrollY: 0,
+        width: contentClone.scrollWidth,
+        height: contentClone.scrollHeight,
+        onclone: (clonedDoc) => {
+          const clonedContent = clonedDoc.querySelector('[ref="componentRef"]');
+          if (clonedContent instanceof HTMLElement) {
+            clonedContent.style.width = '1200px';
+            // Ensure tables are properly scaled
+            const tables = clonedContent.querySelectorAll('table');
+            tables.forEach(table => {
+              table.style.width = '100%';
+              table.style.overflow = 'visible';
+            });
+          }
+        }
+      });
+  
+      // Calculate PDF dimensions based on canvas
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      // Create PDF with proper orientation
       const pdf = new jsPDF({
-        orientation: 'portrait',
+        orientation: imgHeight > pageHeight ? 'portrait' : 'landscape',
         unit: 'mm',
         format: 'a4'
       });
+  
+      pdf.addImage(canvas, 'PNG', 0, 0, imgWidth, imgHeight);
       
-      // Calculate dimensions to fit content properly
-      const imgWidth = 210; // A4 width in mm (210mm)
-      const pageHeight = 297; // A4 height in mm (297mm)
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      
-      // Add image to PDF
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      
-      // If content is taller than one page, add additional pages
+      // Handle multi-page PDF if content is taller than one page
       let heightLeft = imgHeight - pageHeight;
       let position = -pageHeight;
       
       while (heightLeft > 0) {
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
         position -= pageHeight;
       }
       
-      // Save the PDF with a meaningful filename
+      // Save the PDF
       pdf.save(`${event?.title || 'Event'}_Details.pdf`);
       
-      // Reset button state
-      if (button instanceof HTMLElement) {
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert(`PDF generation failed. ${error instanceof Error ? error.message : 'Please try again.'}`);
+      
+      // Fallback: Show HTML content for copying
+      if (confirm('PDF generation failed. Would you like to view the content as HTML instead?')) {
+        const htmlContent = printContent.innerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      }
+    } finally {
+      // Restore button state
+      if (button) {
         button.innerHTML = originalButtonText;
         button.disabled = false;
       }
       
+      // Clean up any cloned elements
+      const clones = document.querySelectorAll('[ref="componentRef"]');
+      clones.forEach(clone => {
+        if (clone !== printContent) {
+          document.body.removeChild(clone);
+        }
+      });
+  
       // Restore original styles
       printContent.style.cssText = originalStyle;
       document.body.style.overflow = originalOverflow;
       
       // Show elements with no-print class again
+      const noPrintElements = printContent.querySelectorAll('.no-print');
       noPrintElements.forEach((el) => {
         if (el instanceof HTMLElement) {
           el.style.display = '';
         }
       });
-    }).catch(error => {
-      console.error('Error generating PDF:', error);
-      
-      // Reset button state on error
-      if (button instanceof HTMLElement) {
-        button.innerHTML = originalButtonText;
-        button.disabled = false;
-      }
-      
-      // Restore original styles on error
-      printContent.style.cssText = originalStyle;
-      document.body.style.overflow = originalOverflow;
-      
-      // Show elements with no-print class again on error
-      noPrintElements.forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.style.display = '';
-        }
-      });
-    });
+    }
   };
   const dropdownRef = useRef<HTMLDivElement>(null);
 
