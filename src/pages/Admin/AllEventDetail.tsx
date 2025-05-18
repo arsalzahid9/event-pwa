@@ -25,7 +25,7 @@ export default function AllEventDetail() {
   const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
-
+//old pdf code
   // Add this handler function
   const handlePrint = () => {
     const printContent = componentRef.current;
