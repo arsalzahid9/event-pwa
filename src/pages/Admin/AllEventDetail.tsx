@@ -109,7 +109,7 @@ export default function AllEventDetail() {
         });
       });
   
-      // Generate PDF for all devices
+      // Generate PDF
       const canvas = await html2canvas(contentClone, {
         scale: 2,
         useCORS: true,
@@ -135,12 +135,12 @@ export default function AllEventDetail() {
         }
       });
   
-      // Calculate PDF dimensions based on canvas
+      // Calculate PDF dimensions
       const imgWidth = 210; // A4 width in mm
       const pageHeight = 297; // A4 height in mm
       const imgHeight = canvas.height * imgWidth / canvas.width;
       
-      // Create PDF with proper orientation
+      // Create PDF
       const pdf = new jsPDF({
         orientation: imgHeight > pageHeight ? 'portrait' : 'landscape',
         unit: 'mm',
@@ -149,7 +149,7 @@ export default function AllEventDetail() {
   
       pdf.addImage(canvas, 'PNG', 0, 0, imgWidth, imgHeight);
       
-      // Handle multi-page PDF if content is taller than one page
+      // Handle multi-page PDF
       let heightLeft = imgHeight - pageHeight;
       let position = -pageHeight;
       
@@ -160,43 +160,39 @@ export default function AllEventDetail() {
         position -= pageHeight;
       }
       
-      // Special handling for iOS
+      // For iOS devices
       if (isIOS()) {
-        // Convert PDF to Blob and create download link
         const pdfBlob = pdf.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
         
-        // Create a temporary link to download the PDF
         const link = document.createElement('a');
         link.href = pdfUrl;
         link.download = `${event?.title || 'Event'}_Details.pdf`;
         
-        // For iOS, we need to actually click the link
         document.body.appendChild(link);
         link.click();
         
-        // Clean up
         setTimeout(() => {
           document.body.removeChild(link);
           URL.revokeObjectURL(pdfUrl);
-        }, 100);
-        
-        // Show iOS-specific instructions if the download doesn't work automatically
-        setTimeout(() => {
-          if (!navigator.userAgent.includes('CriOS')) { // Not Chrome on iOS
+          if (!navigator.userAgent.includes('CriOS')) {
             alert('If the download didn\'t start automatically:\n1. Tap the Share button\n2. Select "Save to Files"');
           }
         }, 500);
       } else {
-        // Standard download for non-iOS devices
+        // For Windows/Android - save PDF and then refresh
         pdf.save(`${event?.title || 'Event'}_Details.pdf`);
+        
+        // Add slight delay before refresh to ensure PDF is downloaded
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
       
     } catch (error) {
       console.error('PDF generation failed:', error);
       alert(`PDF generation failed. ${error instanceof Error ? error.message : 'Please try again.'}`);
       
-      // Fallback: Show HTML content for copying
       if (confirm('PDF generation failed. Would you like to view the content as HTML instead?')) {
         const htmlContent = printContent.innerHTML;
         const blob = new Blob([htmlContent], { type: 'text/html' });
@@ -204,11 +200,9 @@ export default function AllEventDetail() {
         window.open(url, '_blank');
       }
     } finally {
-      // Restore button state
-      if (button) {
-        button.innerHTML = originalButtonText;
-        button.disabled = false;
-      }
+      // Restore original styles immediately
+      printContent.style.cssText = originalStyle;
+      document.body.style.overflow = originalOverflow;
       
       // Clean up any cloned elements
       const clones = document.querySelectorAll('[ref="componentRef"]');
@@ -217,10 +211,6 @@ export default function AllEventDetail() {
           document.body.removeChild(clone);
         }
       });
-  
-      // Restore original styles
-      printContent.style.cssText = originalStyle;
-      document.body.style.overflow = originalOverflow;
       
       // Show elements with no-print class again
       const noPrintElements = printContent.querySelectorAll('.no-print');
@@ -229,6 +219,12 @@ export default function AllEventDetail() {
           el.style.display = '';
         }
       });
+  
+      // Restore button state
+      if (button) {
+        button.innerHTML = originalButtonText;
+        button.disabled = false;
+      }
     }
   };
   const dropdownRef = useRef<HTMLDivElement>(null);
