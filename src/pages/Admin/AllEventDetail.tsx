@@ -109,23 +109,39 @@ export default function AllEventDetail() {
         });
       });
   
-      // Generate PDF
+      // Create a new PDF document
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+  
+      // First pass: Extract all links and their positions
+      const links = Array.from(contentClone.querySelectorAll('a')).map(link => {
+        const rect = link.getBoundingClientRect();
+        return {
+          url: link.href,
+          x: rect.left,
+          y: rect.top,
+          width: rect.width,
+          height: rect.height
+        };
+      });
+  
+      // Generate PDF with higher quality
       const canvas = await html2canvas(contentClone, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: 1200,
-        windowHeight: 1600,
+        windowWidth: contentClone.scrollWidth,
+        windowHeight: contentClone.scrollHeight,
         scrollX: 0,
         scrollY: 0,
-        width: contentClone.scrollWidth,
-        height: contentClone.scrollHeight,
         onclone: (clonedDoc) => {
           const clonedContent = clonedDoc.querySelector('[ref="componentRef"]');
           if (clonedContent instanceof HTMLElement) {
             clonedContent.style.width = '1200px';
-            // Ensure tables are properly scaled
             const tables = clonedContent.querySelectorAll('table');
             tables.forEach(table => {
               table.style.width = '100%';
@@ -138,18 +154,26 @@ export default function AllEventDetail() {
       // Calculate PDF dimensions
       const imgWidth = 210; // A4 width in mm
       const pageHeight = 297; // A4 height in mm
-      const imgHeight = canvas.height * imgWidth / canvas.width;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+      // Add the image to PDF
+      pdf.addImage(canvas, 'PNG', 0, 0, imgWidth, imgHeight);
+  
+      // Second pass: Add clickable links to the PDF
+      const scaleX = imgWidth / canvas.width;
+      const scaleY = imgHeight / canvas.height;
       
-      // Create PDF
-      const pdf = new jsPDF({
-        orientation: imgHeight > pageHeight ? 'portrait' : 'landscape',
-        unit: 'mm',
-        format: 'a4'
+      links.forEach(link => {
+        const x = link.x * scaleX;
+        const y = link.y * scaleY;
+        const width = link.width * scaleX;
+        const height = link.height * scaleY;
+        
+        // Add clickable area to the PDF
+        pdf.link(x, y, width, height, { url: link.url });
       });
   
-      pdf.addImage(canvas, 'PNG', 0, 0, imgWidth, imgHeight);
-      
-      // Handle multi-page PDF
+      // Handle multi-page PDF if content is taller than one page
       let heightLeft = imgHeight - pageHeight;
       let position = -pageHeight;
       
