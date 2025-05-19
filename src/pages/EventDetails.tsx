@@ -144,34 +144,13 @@ export default function EventDetails() {
         position -= pageHeight;
       }
       
-      // For iOS devices
-      if (isIOS()) {
-        const pdfBlob = pdf.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        
-        const link = document.createElement('a');
-        link.href = pdfUrl;
-        link.download = `${event?.title || 'Event'}_Details.pdf`;
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        setTimeout(() => {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(pdfUrl);
-          if (!navigator.userAgent.includes('CriOS')) {
-            alert('If the download didn\'t start automatically:\n1. Tap the Share button\n2. Select "Save to Files"');
-          }
-        }, 500);
-      } else {
-        // For Windows/Android - save PDF and then refresh
-        pdf.save(`${event?.title || 'Event'}_Details.pdf`);
-        
-        // Add slight delay before refresh to ensure PDF is downloaded
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      }
+      // For all devices, save PDF and then refresh
+      pdf.save(`${event?.title || 'Event'}_Details.pdf`);
+      
+      // Add slight delay before refresh to ensure PDF is downloaded
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
       
     } catch (error) {
       console.error('PDF generation failed:', error);
