@@ -190,7 +190,7 @@ export default function AllEventDetail() {
       // Add slight delay before refresh to ensure PDF is downloaded
       setTimeout(() => {
         window.location.reload();
-      }, 1000);
+      }, 3000);
       
     } catch (error) {
       console.error('PDF generation failed:', error);
