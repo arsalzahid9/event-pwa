@@ -216,15 +216,13 @@ const handleCancelDelete = () => {
                     events.map((event) => (
                       <tr
                         key={event.id}
-                        className={
-                          showEventCheckboxes && selectedEventIds.includes(event.id)
-                            ? "bg-red-50 cursor-pointer"
-                            : showEventCheckboxes
-                            ? "cursor-pointer"
-                            : ""
-                        }
+                        className={`cursor-pointer ${showEventCheckboxes && selectedEventIds.includes(event.id) ? 'bg-blue-100' : ''}`}
                         onClick={() => {
-                          if (showEventCheckboxes) handleEventCheckboxChange(event.id);
+                          if (showEventCheckboxes) {
+                            handleEventCheckboxChange(event.id);
+                          } else {
+                            navigate(`/all-events/${event.id}`);
+                          }
                         }}
                       >
                         {showEventCheckboxes && (
