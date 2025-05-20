@@ -10,6 +10,8 @@ import debounce from 'lodash.debounce';
 import { Calendar, Plus, Check, X } from 'lucide-react'; // Add Plus, Check, X icons
 import { getGuideDropdown } from '../../api/Admin/getGuideDropdown';
 import { updateGuideName } from '../../api/Admin/UpdateGuideName';
+import { Trash } from 'lucide-react';
+import { deleteEvent } from '../../api/Admin/deleteEvent';
 
 export default function AllEvent() {
   const navigate = useNavigate();
@@ -32,7 +34,44 @@ export default function AllEvent() {
   const [selectedGuideId, setSelectedGuideId] = useState<number | null>(null);
   const [dropdownLoading, setDropdownLoading] = useState(false);
   const [dropdownError, setDropdownError] = useState('');
+  const [showEventCheckboxes, setShowEventCheckboxes] = useState(false);
+const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
 
+const handleEventCheckboxChange = (eventId: string) => {
+  setSelectedEventIds(prev =>
+    prev.includes(eventId)
+      ? prev.filter(id => id !== eventId)
+      : [...prev, eventId]
+  );
+};
+
+const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+
+const handleDeleteSelectedEvents = async () => {
+  if (selectedEventIds.length === 0) return;
+  setShowDeleteConfirmModal(true);
+};
+
+const confirmDeleteEvents = async () => {
+  try {
+    await deleteEvent(selectedEventIds.map(Number));
+    setSelectedEventIds([]);
+    setShowEventCheckboxes(false);
+    setShowDeleteConfirmModal(false);
+    fetchEvents();
+  } catch (err) {
+    alert('Failed to delete selected events.');
+    setShowDeleteConfirmModal(false);
+  }
+};
+
+const cancelDeleteEvents = () => {
+  setShowDeleteConfirmModal(false);
+};
+const handleCancelDelete = () => {
+  setShowEventCheckboxes(false);
+  setSelectedEventIds([]);
+};
   const fetchEvents = async () => {
     try {
       setLoading(true);
@@ -111,14 +150,48 @@ export default function AllEvent() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold ml-0 md:ml-8">All Events</h1>
-        <input
-          type="text"
-          placeholder="Search events..."
-          value={search}
-          onChange={handleSearchChange}
-          className="w-full sm:w-80 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        {showEventCheckboxes ? (
+          <div className="flex items-center gap-2 w-full justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <button
+                className="bg-red-600 hover:bg-red-700 text-white rounded px-3 py-2 flex items-center"
+                onClick={handleDeleteSelectedEvents}
+                type="button"
+              >
+                <Trash className="w-4 h-4 mr-1" /> Delete Selected ({selectedEventIds.length})
+              </button>
+            </div>
+            <button
+              className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded p-2 flex items-center"
+              onClick={handleCancelDelete}
+              type="button"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between mb-4 w-full">
+            <h1 className="text-2xl font-bold ml-0 md:ml-8">All Events</h1>
+            <div className="flex gap-2">
+              <button
+                className="bg-red-100 hover:bg-red-200 text-red-600 rounded p-2 flex items-center"
+                onClick={() => setShowEventCheckboxes(true)}
+                type="button"
+              >
+                <Trash className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+        {!showEventCheckboxes && (
+          <input
+            type="text"
+            placeholder="Search events..."
+            value={search}
+            onChange={handleSearchChange}
+            className="w-full sm:w-80 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        )}
       </div>
 
       {loading ? (
@@ -131,22 +204,38 @@ export default function AllEvent() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME EVENTO</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME GUIDA</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">ORIGINE</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">DATA</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">IMMAGINE</th>
-                  </tr>
+                  {showEventCheckboxes && <th className="px-2 py-3"></th>}
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME EVENTO</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">NOME GUIDA</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">ORIGINE</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">DATA</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">IMMAGINE</th>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {events.length > 0 ? (
                     events.map((event) => (
                       <tr
                         key={event.id}
-                        className="hover:bg-gray-50 cursor-pointer"
-                        onClick={() => navigate(`/all-events/${event.id}`)}
+                        className={
+                          showEventCheckboxes && selectedEventIds.includes(event.id)
+                            ? "bg-red-50 cursor-pointer"
+                            : showEventCheckboxes
+                            ? "cursor-pointer"
+                            : ""
+                        }
+                        onClick={() => {
+                          if (showEventCheckboxes) handleEventCheckboxChange(event.id);
+                        }}
                       >
+                        {showEventCheckboxes && (
+                          <td onClick={e => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              checked={selectedEventIds.includes(event.id)}
+                              onChange={() => handleEventCheckboxChange(event.id)}
+                            />
+                          </td>
+                        )}
                         <td className="px-6 py-4 text-sm font-medium">{event.title}</td>
                         <td className="px-6 py-4 text-sm relative" onClick={e => e.stopPropagation()}>
                           <div className="flex items-center gap-2">
@@ -284,6 +373,30 @@ export default function AllEvent() {
           </div>
         </>
       )}
+      
+{/* Place this modal just before your closing </div> or at the root of your return */}
+{showDeleteConfirmModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+      <h2 className="text-lg font-bold mb-2">Confirm Delete</h2>
+      <p className="mb-4">Are you sure you want to delete {selectedEventIds.length} selected event(s)? This action cannot be undone.</p>
+      <div className="flex justify-end gap-2">
+        <button
+          className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded px-4 py-2"
+          onClick={cancelDeleteEvents}
+        >
+          Cancel
+        </button>
+        <button
+          className="bg-red-600 hover:bg-red-700 text-white rounded px-4 py-2"
+          onClick={confirmDeleteEvents}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 
@@ -308,3 +421,4 @@ export default function AllEvent() {
   //   }
   // };
 }
+
